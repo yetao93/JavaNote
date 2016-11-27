@@ -1,0 +1,104 @@
+Spring核心容器就是一个超级大工厂，把容器中的一切对象都称为Bean，与JavaBean必须遵守一些规范不同，Spring对Bean没有任何要求，只要是个Java类
+
+Spring的作用是管理JavaEE组件。本质是通过XML配置来驱动Java代码。
+
+A对象需要调用B对象方法的情形，被称为依赖。	Spring容器根据XML配置文件或注解来管理Bean
+
+配置文件<beans> <bean  id=""  class=""> <property name="" value="" 或 ref="" >
+
+Spring框架通过反射根据<bean>的class属性创建了一个Java对象，并以id属性的值为key，将该对象放入Spring容器中。然后再传入参数
+
+Spring有两个核心接口：BeanFactory和ApplicationContext，其中后者是前者的子接口
+	BeanFactory要等到程序需要Bean实例时才创建Bean。ApplicationContext在创建时会预初始化容器中所有的singleton Bean
+
+创建好容器后有根据需不需要强制类型转换，可以有两个方法getBean
+
+依赖注入通常有两种：设值注入，IoC容器使用成员变量的setter方法来注入被依赖对象，如上
+					构造注入，IOC容器使用构造器来注入被依赖对象。执行带参数的构造器，对成员变量进行初始化。
+						<beans> <bean  id=""  class=""> <constructor-arg index="" ref="" 或 value="" type="">
+					
+ApplicationContext的事件机制：	由事件源，事件，事件监听器组成
+					ApplicationEvent类		容器事件，必须由ApplicationContext发布
+					ApplicationListener接口	监听器，可由容器中任何监听器bean担任
+						并将监听器配置在容器中，即在beans.xml中配置
+						在主程序中使用ApplicationContext的publishEvent来发布事件
+	
+让Bean获取Spring容器：
+	之前都是程序先创建Spring容器，再用getBean()方法来获取容器中的Bean，但是在Web应用中，Spring容器通常采用声明式配置产生，
+		只要在web.xml中配置一个Listener，该Listener将会负责初始化Spring容器。
+	有时，Bean需要借助于Spring容器来实现一些功能，就要获取它所在的Spring容器。
+	可以让Bean实现BeanFactoryAware接口，其中只有一个方法setBeanFactory(BeanFactory beanFactory)，该参数就是Spring容器
+	类似的接口还有ApplicationContextAware，方法为setApplicationContext(ApplicationContext ctx)
+
+详解Bean
+	可以设置别名，name=""，允许包含特殊符号，还可以用<alias name="" alias="">设定别名
+	作用域，通过scope=""设定，默认singleton单例模式，还有prototype,request,session,global session,也可以自定义作用域
+	
+依赖注入的数据类型，在<bean>的子元素<property>中的属性区分
+	value:基本类型及其包装类、String等
+	ref:  容器中的另一个Bean实例。
+			可以使用自动装配，在<beans>的default-autowire 或 <bean>的autowire属性设置，
+			该属性有如下几个值:no,默认，不使用自动装配。
+							   buName,寻找Bean与setter方法名进行匹配，去掉set，小写首字母
+							   byType,寻找Bean与setter方法的形参类型匹配，正好有一个就注入，多个会报错
+							   constructor,与byType类似，匹配构造器参数，如果不能恰好找到一个与构造器参数类型匹配的Bean，会报错
+							   autodetect,Spring根据Bean内部结构，自己决定
+			如果不希望某个Bean被自动装配选中，可设置autowire-candidate="false"
+	bean:如果不希望Spring直接访问某个Bean，而只是将它作为设值注入或构造注入的参数，可使用嵌套Bean,不需要指定id
+			<bean id="" class=""> <property name=""> <bean class=""> 这样与使用ref引用是一样的
+	list,set,map,props：注入集合值，详见《轻量级》P564
+	组合属性，如foo.bar.name,要求除最后一个属性外，其他属性值不为null.
+
+
+Spring支持以下三种方式创建Bean。
+	*调用构造器创建Bean。如设值注入(无参,属性注入)和构造注入(有参，构造函数注入，按类型匹配入参、按索引匹配入参、联合使用)
+	*调用静态工厂方法创建Bean。
+		class属性必须指定，但不是Bean的实现类，而是静态工厂类。还需factory-method属性指定静态工厂方法
+	*调用实例工厂方法创建Bean。
+		先配置工厂Bean。然后创建Bean无需class，需要工厂实例，使用factory-bean指定工厂实例，factory-method指定实例工厂方法。
+		
+	一旦为<bean>元素指定了factory-method属性，Spring就调用工厂方法来创建Bean实例，
+		如果同时指定class和factory-method属性，就是静态工厂方法。
+		如果同时指定factory-bean和factory-method，就是实例工厂方法。
+
+		
+抽象Bean与继承。
+	为了解决大项目中的配置文件臃肿，后期难以修改、维护，将多个Bean配置中的相同信息提取出来，集中成配置模板。
+	子Bean定义可以从父Bean继承class、constructor-arg、property属性。
+	先定义抽象<bean id="" abstract="true"> 
+		再继承<bean id="" class="" parent="">
+		
+	Bean继承与Java继承的区别：前者是实例和实例之间参数值的延续，后者则是一般到特殊的细化。前者是对象与对象之间的关系，后者则是类与类之间的关系。
+	
+
+可以使用XML Schema简化配置
+	p:命名空间，简化设置注入 p:age="29"	p:axe-ref="stoneAxe"
+	c:命名空间，简化构造注入 c:axe-ref="stoneAxe" c:age="29" 或 c:_0-ref="stoneAxe" c:_1="29"
+	
+	
+Spring基于注解配置
+	提供如下几个Annotation来标注Spring Bean：
+		@Component，标注一个普通的Spring Bean类，如需指定名字@Component("axe")
+		@Controller，标注一个控制器组件类
+		@Service，标注一个业务逻辑组件类
+		@Repository，标注一个DAO组件类
+	配置xmlns，添加<context:component-scan base-package="">
+	
+Spring基于Java类的配置
+	普通POJO只要标注了@Configuration注解，就可以为Spring容器提供Bean定义的信息
+	每个标注了@Bean的类方法都相当于提供了一个Bean的定义信息
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

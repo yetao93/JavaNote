@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html ng-app="fileUpload">
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+	<script src="angular.min.js"></script>
+	<div ng-controller="MyCtrl">
+		{{'我是你爹'+name}}
+	</div>
+
+	<script type="text/javascript">
+		var app = angular.module('fileUpload',[]);
+		app.controller('MyCtrl',['$scope',function($scope){
+			$scope.name = "ytt";
+		}]);
+	</script>
+</body>
+</html>

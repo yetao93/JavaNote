@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html ng-app="fileUpload">
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+	<script src="angular.min.js"></script>
+	<div ng-controller="MyCtrl">
+		<label>对象</label>
+		<select ng-options="option as option.name for option in xzqys" ng-model="xzqyCode" ng-change="list()">
+			<option value="这里显示什么">默认值不显示</option>
+		</select>
+
+		<label>数组</label>
+		<select ng-model="selectedName" ng-options="item for item in names">
+		</select>
+	</div>
+
+	<script type="text/javascript">
+		var app = angular.module('fileUpload',[]);
+		app.controller('MyCtrl',['$scope',function($scope){
+
+			$scope.xzqys = [{"name":"n1","codem":"c1"},{"name":"n2","codem":"c2"},{"name":"n3","codem":"c3"},{"name":"n4","codem":"c4"}];
+
+			 $scope.names = ["Emil", "Tobias", "Linus"];
+
+			$scope.list = function(){
+				alert($scope.xzqyCode);
+			}
+
+		}]);
+	</script>
+</body>
+</html>

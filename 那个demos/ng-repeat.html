@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<meta charset="utf-8">
+	<script src="angular.min.js"></script>
+</head>
+<body>
+	
+	<div ng-controller="MyCtrl">
+	<table>
+		<thead>
+			<tr>
+	            <th>到达时间</th>
+	            <th>事件来源</th>
+        	</tr>
+		</thead>
+	    <tbody>
+   			<tr ng-repeat="myComment in myComments">
+		   		<td>{{myComment.ARRIVETIME}}</td>
+		   		<td>{{myComment.EVENTSOURCENAME}}</td>
+		   	</tr>
+	    </tbody>
+	</table>
+	</div>
+	
+	<script type="text/javascript">
+		var app = angular.module('myApp',[]);
+		app.controller('MyCtrl',['$scope',function($scope){
+
+			$scope.myComments = [{'ARRIVETIME':1,'EVENTSOURCENAME':2},
+								{'ARRIVETIME':3,'EVENTSOURCENAME':4},
+								{'ARRIVETIME':5,'EVENTSOURCENAME':6}];
+								
+		}]);
+	</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+5.1数组
+
+  数组是引用数据类型
+  一维数组的声明，不必给定大小 如 int[] d;  int d[];
+  实例化，分配内存空间，给定长度 int[] d; d=new int[6];  简化为int[] d=new int[6];
+  也可以声明的同时初始化 int d[]={1,2,3,4};仅限于8中基本数据类型和String型
+  这样也行 int[] a = new int[]{1,2,3,4,5};
+  
+  二维数组声明和实例化与一维相同
+  也可动态实例化int a[][] = new int[2][];
+  		a[0]=new int[3];
+		a[1]=new int[5];
+  直接初始化 int c[][]={{1,2},{3,4,5},{6}};
+
+  输出数组时要用Arrays.toString( T[ ] )
+
+5.2字符串
+
+  不可变字符串String    字符串转化成数组 char data[] = str.toCharArray();
+
+    声明与实例化 String name; name = new String("yetao");
+    或调用String的构造方法  String name = new String("yetao"); 或 String name = "yetao" 较好
+    
+    new String()创建的字符串不放入常量池---P143
+    length()返回的是16位的Unicode字符数量
+
+    对于字符串变量，使用==运算符比较的是两个变量本身的值，即在内存中的首地址；
+		    equals（）方法比较的是两个字符串所包含的内容是否相同。
+    对于非字符串类型的对象变量，都是比较堆内存中的首地址。
+
+  可变字符串StringBuffer
+    
+    StringBuffer s = new StringBuffer("Fuck you");
+    不能用"="赋值  s="shit"; 错误！ StringBuffer s="shit"; 错误！
+
+    主要修改方法append()追加、insert()插入、delete()删除、replace()替换、reverse()翻转--P150
+
+  选用注意事项
+    
+     在编译期能确定字符串值时，采用String s= ；形式来定义，使用+时性能最佳。
+     经常改变字符串的操作或在运行期才能确定时，采用StringBuffer。
+     尽量不要用 new 创建String对象。  
+     避免使用 = 来重新构造String对象。
+     在声明StringBuffer对象时，指定合适的容量。StringBuffer s = new StringBuffer(1024);表示分配了1024B

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="http://apps.bdimg.com/libs/angular.js/1.4.6/angular.min.js"></script>
+
+</head>
+<body>
+<div>html按照顺序进行加载，使用AngularJs之后，也将表达式和指令等按纯文本顺序加载，此时ng-init不发挥作用，所以在js中取不到，在加载完成定义了AngularJs应用和控制器之后，ng-init之类的才有用</div>
+<div ng-app='ytt' ng-controller='tt'>
+	<div ng-init="firstName='ttt'"></div>
+	{{firstName}}
+	{{jieshu}}
+</div>
+<script type="text/javascript">
+	var app = angular.module('ytt',[]);
+	app.controller('tt',function($scope){
+		alert($scope.firstName);
+		$scope.jieshu = '结束';
+		console.log('什么时候执行html里面的内容');
+	});
+</script>
+</body>
+</html>

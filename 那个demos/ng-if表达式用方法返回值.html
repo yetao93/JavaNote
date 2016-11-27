@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html ng-app="fileUpload">
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+	<script src="angular.min.js"></script>
+	<div ng-controller="MyCtrl">
+		<div ng-if="x" ng-click='trans()'>哈哈哈哈{{x}}</div><br/>
+		{{x}}
+	</div>
+
+<!-- 在ng-if或者ng-click这些里面添加变量不需要{{}}表达式，直接写 	
+	<tr ng-repeat="x in jianXius | orderBy:'date'">
+		<td>{{$index+1}}</td>
+		<td>{{x.station.name}}</td>
+		<td>{{x.areaGov.name}}</td>
+		<td>{{x.planName}}</td>
+		<td>{{x.date | date:"yyyy-MM-dd"}}</td>
+		<td>{{x.content}}</td>
+		<td>{{x.duty}}</td>
+		<td><button ng-if='x.fileId != null' ng-click="download(x.fileId)">下载附件</button></td>
+	</tr> -->
+
+	<script type="text/javascript">
+		var app = angular.module('fileUpload',[]);
+		app.controller('MyCtrl',function($scope){
+			//值为false、null、0的时候不显示，其他都显示
+			$scope.x = '0';
+
+			$scope.trans = function(){
+				$scope.x = !$scope.x;
+			}
+		});
+	</script>
+</body>
+</html>

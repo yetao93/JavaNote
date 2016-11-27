@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html ng-app="fileUpload">
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+	<script src="angular.min.js"></script>
+	<div ng-controller="MyCtrl">
+		<input type="text"  ng-model="entity.list">
+		<input type="text"  ng-model="entity.list">
+		<input type="text"  ng-model="entity.list">
+		<input type="submit" ng-click="submit()">
+	</div>
+
+	<script type="text/javascript">
+		var app = angular.module('fileUpload',[]);
+		app.controller('MyCtrl',function($scope){
+			$scope.entity={list:[]};
+
+			$scope.submit = function(){
+				console.log($scope.entity);
+			}
+
+		});
+	</script>
+</body>
+</html>

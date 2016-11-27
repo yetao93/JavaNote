@@ -1,0 +1,296 @@
+JSP和Servlet本质是一样的，JSP最终必须被编译成Servlet才能运行。
+Servlet是一个特殊的java类，Tomcat会根据JSP页面生成对应的Servlet的Java文件和class文件
+在Servlet类里主要有三个方法：init()   初始化JSP/Servlet的方法
+							 destory()销毁JSP/Servlet之前的方法
+							 service()对用户请求生成响应的方法
+
+如果开发者自己写servlet，可以继承自HttpServlet，其中有service(),doGet(),doPost()方法，通常选择覆盖doGet(),doPost()来完成业务功能，
+HttpServlet继承自GenericServlet，其中有init(),destory(),抽象的service().
+
+JSP运行方式：当客户端向服务器发出请求时，被请求的JSP首先被Web应用服务器编译成Servlet并执行，然后将所产生的结果
+作为一个HTML文件传送给浏览器
+
+Servlet被设计成一种独立于平台和协议的服务器端的Java应用程序，可以生成动态的Web页面。
+Servlet由Web服务器进行加载，该Web服务器必须包含支持Servlet的Java虚拟机。
+Servlet不是独立的Java应用程序，没有main方法，不是由用户直接调用，而是由容器调用。
+
+当一个请求映射到一个Servlet时，该容器执行下列步骤：
+	如果一个Servlet的实例并不存在，Web容器将加载Servlet类，创建一个Servlet类的实例，调用init方法初始化Servlet实例，
+	仅执行一次init方法。
+	调用service方法，传递一个请求（ServletRequest对象）和响应（ServletResponse对象）。
+	如果该容器要移除这个Servlet，可调用Servlet的destroy方法来结束该Servlet。
+Servlet的生命周期包括加载、初始化、处理客户端请求以及服务结束。
+
+
+关于转发和重定向：
+转发，request.getRequestDispatcher("success.jsp").forward(request,response);
+	在服务器组件收到用户请求后。经过它的处理后有传递给了另一个组件。不修改用户的请求码。各组件处理完之后在返回给用户，例如主页面的框架。
+重定向：response.sendRedirect("success.jsp");	
+	在服务器组件收到用户请求后。经过处理修改用户请求。在返回给用户。这样用户再次使用这个请求就会被动的使用新的请求了。
+	（重定向一般是为了防止用户提交完数据后点浏览器刷新或点后退之后产生重复提交）
+
+转发地址栏的地址是不变的，（服务器内部转发，所有客户端看不到地址栏的改变），转发请求到达servlet或者action获取请求参数（如果有）
+	完成相应的业务逻辑，然后输出相应界面，这时是带着返回数据的（如果有），返回数据在request或者response，相应页面会输出相应数据，
+	如果你的响应是有返回数据的，必须用转发。
+重定向地址栏的地址不是你发送请求的地址，本质上讲等同于两次请求，最终会变化成你重定向的地址，重定向发送请求到达servlet或者action接收
+	请求参数处理相关的业务逻辑之后，会清除request和response中的数据，到达重定向的页面是不能够接收和显示数据的
+
+	
+ServletConfig讲解
+在配置文件web.xml中，可以使用一个或多个<init-param>标签为servlet配置一些初始化参数。
+web容器在创建servlet实例对象时，会自动将这些初始化参数封装到ServletConfig对象中，并在调用servlet的init方法时，
+将ServletConfig对象传递给servlet。进而，我们通过ServletConfig对象就可以得到当前servlet的初始化参数信息。
+
+
+ServletContext对象
+WEB容器在启动时，它会为每个WEB应用程序都创建一个对应的ServletContext对象，它代表当前web应用。
+ServletConfig对象中维护了ServletContext对象的引用，开发人员在编写servlet时，可以通过ServletConfig.getServletContext方法获得它，
+也可以用this.getServletContext方法获得它。
+由于一个WEB应用中的所有Servlet共享同一个ServletContext对象，因此Servlet对象之间可以通过ServletContext对象来实现通讯。
+servletContext.setAttribute()和getAttribute()。ServletContext对象通常也被称之为context域对象。
+也可以获取WEB应用的初始化参数，<context-param>标签配置WEB应用的初始化参数，getInitParameter()
+
+解决中文乱码问题：response.setHeader("content-type","text/html;charset=UTF-8");
+
+Servlet的运行过程
+Servlet程序是由WEB服务器调用，web服务器收到客户端的Servlet访问请求后：
+　　①Web服务器首先检查是否已经装载并创建了该Servlet的实例对象。如果是，则直接执行第④步，否则，执行第②步。
+　　②装载并创建该Servlet的一个实例对象。
+　　③调用Servlet实例对象的init()方法。
+　　④创建一个用于封装HTTP请求消息的HttpServletRequest对象和一个代表HTTP响应消息的HttpServletResponse对象，
+		然后调用Servlet的service()方法并将请求和响应对象作为参数传递进去。
+　　⑤WEB应用程序被停止或重新启动之前，Servlet引擎将卸载Servlet，并在卸载之前调用Servlet的destroy()方法。 
+
+HttpServlet在实现Servlet接口时，覆写了service方法，该方法体内的代码会自动判断用户的请求方式，
+如为GET请求，则调用HttpServlet的doGet方法，如为Post请求，则调用doPost方法。
+因此，开发人员在编写Servlet时，通常只需要覆写doGet或doPost方法，而不要去覆写service方法。
+
+创建Servlet实例有两个时机：
+	*客户端第一次请求某个Servlet时，系统创建该Servlet的实例。
+	*Web应用启动时立即创建Servlet实例，即load-on-startup Servlet
+如果一个Servlet没有提供service()方法，表明它不能响应用户请求，所以无须为它配置URL映射，只能在应用启动时实例化。
+	
+Servlet与普通Java类的区别　　
+　　Servlet是一个供其他Java程序（Servlet引擎）调用的Java类，它不能独立运行，它的运行完全由Servlet引擎来控制和调度。
+　　针对客户端的多次Servlet请求，通常情况下，服务器只会创建一个Servlet实例对象，也就是说Servlet实例对象一旦创建，它就会驻留在内存中，
+	为后续的其它请求服务，直至web容器退出，servlet实例对象才会销毁。
+　　在Servlet的整个生命周期内，Servlet的init方法只被调用一次。而对一个Servlet的每次访问请求都导致Servlet引擎调用一次service方法。
+	对于每次访问请求，Servlet引擎都会创建一个新的HttpServletRequest请求对象和一个新的HttpServletResponse响应对象，
+	然后将这两个对象作为参数传递给它调用的Servlet的service()方法，service方法再根据请求方式分别调用doXXX方法。 
+
+
+<%! %> JSP声明全局变量和方法，转变为Servlet类的成员变量和成员方法
+<%  %> 表明这些是脚本，语句段里面的变量是局部变量
+<%= %> 输出表达式值，没有分号
+<!-- --> 注释语句，从源文件可以看到
+<%-- --%> JSP注释语句，在源文件看不到
+
+
+JSP的3个编译指令 	是通知Servlet引擎的处理消息，在编译时起作用
+<%@ page %> page指令，针对当前页面
+<%@ taglib %> 定义标签
+<%@ include %> include指令，变量名不能重复，编译指令不能冲突，静态导入  <%@ include file="目标文件"%> 完全包含了目标文件的所有的代码
+
+
+JSP的7个动作指令	运行时的动作，通常可替换成JSP脚本
+<jsp:include >标签   动态导入,可以传递参数 <jsp:include page="目标文件"/>
+   从运行效果上相同。
+   不同点：
+		1.静态导入是将被导入页面的代码完全融入，两个页面融合成一个整体Servlet
+		  动态导入是在Servlet中使用include方法来引入内容
+		  
+		2.静态导入时，被导入页面的编译指令会起作用
+		  动态导入只是插入被导入页面的body内容
+		
+		3.动态导入还可以增加额外的参数
+		
+		4.<%@ include %>指令是在编译（转换）的时候使用，<jsp:include>在运行的时候起作用。
+		
+		5.forward拿目标页面代替原有的页面，include拿目标页面插入原有页面
+
+<jsp:forward >标签  跳转到主页 <jsp:forward page="index.jsp"/>  相当于  response.sendRedirect("index.jsp");
+	<jsp:forward>和response.sendRedirect的运行效果相同（针对上面的这个例子）。
+	相同点：都是转向目标文件。
+	不同点：地址栏中显示的内容是不相同的，如果使用<jsp:forward>，地址栏显示当前文件的名字，如果使用response，地址栏显示的是转向后的文件的名字。
+	       执行过程不同，使用<jsp:forward>相当于一次请求，只是完全采用了新页面来对用户生成响应，参数、属性都不会丢失，表单提交即是如此
+				         使用response相当于两次请求。
+	使用<jsp:forward>的情况：
+		index.jsp中输入用户名和口令，提交给login_process.jsp，服务器保存用户的输入信息，
+		使用<jsp:forward>转向success.jsp之后，success.jsp还可以访问用户输入的信息，因为属于同一次请求。
+	使用response的请求：
+		index.jsp中输入用户名和口令，提交给login_process.jsp，服务器保存用户的输入信息，
+		使用response的sendRedirect方法相当于重新向服务器发送一次请求，这样上次的请求内容（用户名和口令）就不能共享了。
+
+	<jsp:include>和<jsp:forward>区别
+	<jsp:forward>：先执行标签之前的内容，遇到标签的时候转向执行目标文件，执行完不返回，显示的内容为目标文件的内容，标签之前的内容执行，但是不显示。标签之后的内容不会执行，当然更不会显示。
+	<jsp:include>：先执行标签之前的内容，遇到标签转向执行目标文件，执行完返回，继续执行标签之后的内容，显示的内容为：标签之前的内容+目标文件的内容+标签之后的内容，标签的前后都执行，都显示。
+
+<jsp:param name="" value="" />设置参数值，本身不能单独使用，可结合jsp:include、jsp:forward
+
+<jsp:plugin> <jsp:useBean> <jsp:setProperty> <jsp:getProperty>
+
+
+
+JSP9个内置对象：
+application,session,request,page,out,exception,response,config,pageContext
+
+Web服务器的实现原理：
+	对于浏览器：1.向远程服务器发送请求
+				2.读取远程服务器返回的字符串数据
+				3.负责根据字符串数据渲染出页面
+	服务器：1.对于请求，启动单独的线程
+			2.使用I/O流读取用户请求的二进制流数据
+			3.从请求数据中解析参数
+			4.处理用户请求
+			5.生成响应数据
+			6.使用I/O流向客户端发送请求数据
+		在第三步解析到请求参数之后，创建HttpServletRequest和HttpServletResponse等对象，作为Service()的参数
+		JSP和Servlet之间通常不会互相调用，为了解决交换数据的问题，提供4个“数据银行”，application、session、request、page
+		JSP的4个内置对象分别用于操作这四个范围内的数据
+			setAttribute(String attrName,Object value)	getAttribute(String attrName)
+	
+out.println(Object);out.write(String);	
+
+exception:当JSP页面page指令的isErrorPage="true"时，才会提供exception内置对象
+
+pageContext：主要用于访问JSP之间的共享数据，可以访问4个数据银行范围的变量，以及其他内置对象
+
+request对象封装着用户请求，并且所有请求参数都被封装在其中，是获取请求参数的重要途径
+
+response可以用来输出非字符响应如图片、PDF、Excel等
+		重定向是另一个用处，与forward不同的是，重定向会丢失所有请求参数和request范围的属性，因为重定向将生成第二次请求，
+			与前一次请求不在同一个request范围内，地址栏URL也会变
+		增加Cookie，与session不同之处是session会随浏览器的关闭而失效，但Cookie会一直存放在客户端机器上。访问Cookie用request.getCookies()
+
+session:代表一次用户会话，从客户端浏览器连接服务器开始，到客户端浏览器与服务器断开为止，关闭浏览器即session结束
+		
+		
+		
+		
+		
+		
+		
+		
+		
+操作：       GET		POST
+刷新：	  不会重复提交	重复提交
+数据长度：2048个字符	无限制
+数据类型：ASC2字符	    无限制
+可见性:	  URL中可见	    不可见
+安全性：  不安全		安全
+
+
+
+配置Servlet
+   配置文件及位置：WEB-INF下面的web.xml。
+   配置包括两个方面：Servlet的声明 以及 Servlet访问方式的声明
+   Servlet的声明：
+   <servlet>
+      <servlet-name>hello</servlet-name>
+      <servlet-class>servlet.HelloServlet</servlet-class>
+   </servlet>
+   其中，<servlet-name>表示这个servlet的名字，可以随便起。<servlet-class>是对应的Servlet类，应该包含包的信息。
+   Servlet访问方式的声明：
+   <servlet-mapping>
+      <servlet-name>hello</servlet-name>
+      <url-pattern>/hello</url-pattern>
+   </servlet-mapping>
+   其中，<servlet-name>和Servlet声明中的用法相同，并且应该与Servlet声明中的名字保持一致。
+   <url-pattern>表示访问方式，决定了在客户端如何访问这个Servlet。
+   也可以用注解来配置Servlet，Filter等，@WebServlet(name="",urlPatterns="")
+
+对于JSP文件来说，优势在于显示信息，servlet主要用于控制。
+	在Java Web应用中存在大量的这种现象。是Java Web中的控制功能,主要使用Servlet完成控制。
+    login_process.jsp的基本功能：获取用户的输入信息；进行判断；转向。
+    如果使用Servlet完成，功能代码应该写在doGet或者doPost方法中。对应上面的3个功能分别实现如下：
+    获取用户信息：用户信息存储在doGet或者doPost方法的第一个参数中，所以从参数中获取，获取的代码为
+        String username = request.getParameter("username");
+        String userpass = request.getParameter("userpass");
+    判断：
+        if( username.equals("zhangsan") && userpass.equals("zhangsan") )
+    转向响应界面：
+        第一种方式：response.sendRedirect("index.jsp");
+        第二种方式：与<jsp:forward>功能相同
+        RequestDispatcher rd = request.getRequestDispatcher("index.jsp");  // 参数是要转向的页面
+        rd.forward(request,response); // 完成跳转
+
+
+request.getSession().setAttribute和request.setAttribute的区别是什么？
+	request.setAttrbute()的参数只能在一个request内有效，如果重定向回客户端，将取不到值。
+	request.getSession.setAttribute()则可以通过sessionid得到自己的session,将参数存储在session中，
+		进而可以多次取回其中的值,即使重定向回客户端也无所谓，可以再不同页面中多次使用.
+
+
+
+Filter
+
+Servlet API中提供了一个Filter接口，其中有init(),doFilter(),destory()
+开发web应用时，如果编写的Java类实现了这个接口，则把这个java类称之为过滤器Filter。
+
+Filter接口中有一个doFilter方法，当我们编写好Filter，并配置对哪个web资源进行拦截后，
+WEB服务器每次在调用web资源的service方法之前，都会先调用一下filter的doFilter方法，因此，在该方法内编写代码可达到如下目的：
+    1.调用目标资源之前，让一段代码执行。
+    2.是否调用目标资源（即是否让用户访问web资源）。
+    3.调用目标资源之后，让一段代码执行。
+web服务器在调用doFilter方法时，会传递一个filterChain对象进来，filterChain对象是filter接口中最重要的一个对象，
+它也提供了一个doFilter方法，开发人员可以根据需求决定是否调用此方法，调用该方法，
+则web服务器就会调用下一个Filter或web资源的service方法，即web资源就会被访问，否则web资源不会被访问。
+
+Filter链
+　　在一个web应用中，可以开发编写多个Filter，这些Filter组合起来称之为一个Filter链。
+　　web服务器根据Filter在web.xml文件中的注册顺序，决定先调用哪个Filter，当第一个Filter的doFilter方法被调用时，
+	web服务器会创建一个代表Filter链的FilterChain对象传递给该方法。在doFilter方法中，开发人员如果调用了FilterChain对象的doFilter方法，
+	则web服务器会检查FilterChain对象中是否还有filter，如果有，则调用第2个filter，如果没有，则调用目标资源。
+
+FilterConfig接口
+　　用户在配置filter时，可以使用<init-param>为filter配置一些初始化参数，当web容器实例化Filter对象，调用其init方法时，
+会把封装了filter初始化参数的filterConfig对象传递进来。因此开发人员在编写filter时，通过filterConfig对象的方法，就可获得：
+　　String getFilterName()：得到filter的名称。
+　　String getInitParameter(String name)： 返回在部署描述中指定名称的初始化参数的值。如果不存在返回null.
+　　Enumeration getInitParameterNames()：返回过滤器的所有初始化参数的名字的枚举集合。
+　　public ServletContext getServletContext()：返回Servlet上下文对象的引用。
+
+filter的三种典型应用：
+  1、可以在filter中根据条件决定是否调用chain.doFilter(request, response)方法，即是否让目标资源执行
+  2、在让目标资源执行之前，可以对request\response作预处理，再让目标资源执行
+  3、在目标资源执行之后，可以捕获目标资源的执行结果，从而实现一些特殊的功能
+
+Filter的生命周期
+创建
+　　Filter的创建和销毁由WEB服务器负责。web 应用程序启动时，web 服务器将创建Filter 的实例对象，
+	并调用其init方法，完成对象的初始化功能，从而为后续的用户请求作好拦截的准备工作，filter对象只会创建一次，
+	init方法也只会执行一次。通过init方法的参数，可获得代表当前filter配置信息的FilterConfig对象。
+销毁
+　　Web容器调用destroy方法销毁Filter。destroy方法在Filter的生命周期中仅执行一次。在destroy方法中，可以释放过滤器使用的资源。
+
+Filter生命周期
+	和Servlet一样Filter的创建和销毁也是由WEB服务器负责。不过与Servlet区别的是，它是
+	1>在应用启动的时候就进行装载Filter类(与Servlet的load-on-startup配置效果相同)。
+	2>容器创建好Filter对象实例后，调用init()方法。
+		接着被Web容器保存进应用级的集合容器中去了等待着，用户访问资源。
+	3>当用户访问的资源正好被Filter的url-pattern拦截时，容器会取出Filter类调用doFilter方法，下次或多次访问被拦截的资源时，
+		Web容器会直接取出指定Filter对象实例调用doFilter方法(Filter对象常驻留Web容器了)。
+	4>当应用服务被停止或重新装载了，则会执行Filter的destroy方法，Filter对象销毁。
+	注意：init方法与destroy方法只会直接一次。
+
+映射：
+<dispatcher>指定过滤器所拦截的资源被 Servlet 容器调用的方式，可以是REQUEST,INCLUDE,FORWARD和ERROR之一，默认REQUEST。
+用户可以设置多个<dispatcher> 子元素用来指定 Filter 对资源的多种调用方式进行拦截。
+<dispatcher> 子元素可以设置的值及其意义：
+    REQUEST：当用户直接访问页面时，Web容器将会调用过滤器。如果目标资源是通过RequestDispatcher的include()或forward()方法访问时，那么该过滤器就不会被调用。
+    INCLUDE：如果目标资源是通过RequestDispatcher的include()方法访问时，那么该过滤器将被调用。除此之外，该过滤器不会被调用。
+    FORWARD：如果目标资源是通过RequestDispatcher的forward()方法访问时，那么该过滤器将被调用，除此之外，该过滤器不会被调用。
+    ERROR：如果目标资源是通过声明式异常处理机制调用时，那么该过滤器将被调用。除此之外，过滤器不会被调用。
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

@@ -1,0 +1,124 @@
+新建一个springMVC项目：
+1.添加maven依赖
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-webmvc</artifactId>
+		<version>4.3.2.RELEASE</version>
+	</dependency>
+	
+	
+2.DispatcherServlet是前置控制器，配置在web.xml文件中的。拦截匹配的请求，把拦截下来的请求，依据相应的规则分发到目标Controller来处理
+
+	<servlet>
+		<servlet-name>springmvc</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+          <param-name>contextConfigLocation</param-name>
+          <param-value>classpath:springmvc-servlet.xml</param-value>
+		</init-param>
+	</servlet>
+ 
+	<servlet-mapping>
+		<servlet-name>springmvc</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+	
+3.在src下添加springmvc-servlet.xml配置文件
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd">                    
+ 
+    <!-- scan the package and the sub package -->
+    <context:component-scan base-package="test.SpringMVC"/>
+ 
+    <!-- don't handle the static resource -->
+    <mvc:default-servlet-handler />
+ 
+    <!-- if you use annotation you must configure following setting -->
+    <mvc:annotation-driven />
+     
+    <!-- configure the InternalResourceViewResolver -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+            id="internalResourceViewResolver">
+        <!-- 前缀 -->
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <!-- 后缀 -->
+        <property name="suffix" value=".html" />
+    </bean>
+</beans>
+	
+	
+4.1 在WEB-INF文件夹下创建名为jsp的文件夹，用来存放jsp视图。创建一个jsp。
+4.2 建立包test.SpringMVC及controller类，添加注解，方法返回的字符串就是视图名称，不带后缀名
+	@Controller
+	@RequestMapping("xxby")
+	public class MyController {
+	
+		@RequestMapping("mvc")
+		public String method(){
+			return "yes";
+		}
+	}
+
+	
+关于一些常用注解：
+handler method 参数绑定常用的注解,我们根据处理的Request的不同内容部分分为四类：（主要讲解常用类型）
+
+A、处理request uri 部分（这里指uri template中variable，不含queryString部分）的注解：   
+
+	@PathVariable,注解这样写@RequestMapping("/toUrl/{petId}")，在方法的参数前加@PathVariable，名称一致，
+			      如不一致，用@PathVariable('petId')
+
+B、处理request header部分的注解：
+
+	@RequestHeader,处理请求头部分，@RequestHeader("Accept-Encoding")，可将Accept-Encoding的值赋给参数
+	
+	@CookieValue,可以把请求头中关于cookie的值绑定到方法的参数上。
+				 如有JSESSIONID=415A4AC178C59DACE0B2C9CA727CDD84，可用@CookieValue("JSESSIONID")
+
+C、处理request body部分的注解：
+
+	@RequestParam,后面可以加value属性,指定参数传来的名称，必须一致，不指定就使用变量名。
+			      可以加required属性,默认为true，必须传这个参数，可以为false
+				  还可以加defaultValue属性，指定默认值
+				  
+	最好使用value属性指定绑定的参数名，以避免因编译方式不同造成参数绑定失败，默认情况下java反射对象并未包含方法入参的名称
+				  
+	@RequestBody,该注解用于读取Request请求的body部分数据，使用系统默认配置的HttpMessageConverter进行解析，
+				 然后把相应的数据绑定到要返回的对象上 ,再把HttpMessageConverter返回的对象数据绑定到controller中方法的参数上，
+				 
+
+D、处理attribute类型是注解： @SessionAttributes, @ModelAttribute;
+
+
+	
+@RequestMapping除了可以指定url和请求方法外，还可以指定请求头参数，请求参数
+	@RequestMapping(value="/delete",method=RequestMethod.POST,params='userId',headers='content-type=text/*')
+	如果没有指定请求方法，那么对所有方法都有效
+	
+@ResponseBody 该注解用于将Controller的方法返回的对象，通过适当的HttpMessageConverter转换为指定格式后，如使用json包
+	写入到Response对象的body数据区，不用@ResponseBody则返回的字符串是视图名
+	
+导入json包后，可用@ResponseBody注解后返回map、list、object等类型数据
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.8.1</version>
+		</dependency>	
+没有json包会报错 No converter found for return value of type: Object、Map、List	
+	
+@RestController就是@Controller+@ResponseBody，返回return的内容而不是视图名	
+		
+	
+	
+	
+	
+
+	

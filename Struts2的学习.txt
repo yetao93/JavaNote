@@ -1,0 +1,173 @@
+一个请求在struts的处理大概有如下步骤：见Struts2流程图
+
+　　1、客户端初始化一个指向Servlet容器（例如Tomcat）的请求；
+
+　　2、这个请求经过一系列的过滤器（Filter）（这些过滤器中有一个叫做ActionContextCleanUp的可选过滤器，
+	   这个过滤器对于Struts2和其他框架的集成很有帮助，例如：SiteMesh Plugin）；
+
+　　3、接着StrutsPrepareAndExecuteFilter被调用，StrutsPrepareAndExecuteFilter询问ActionMapper来决定这个请求是否需要调用某个Action；
+
+　　4、如果ActionMapper决定需要调用某个Action，FilterDispatcher把请求的处理交给ActionProxy；
+
+　　5、ActionProxy通过Configuration Manager询问框架的配置文件struts.xml，找到需要调用的Action类；
+
+　　6、ActionProxy创建一个ActionInvocation的实例。
+
+　　7、ActionInvocation实例使用命名模式来调用，在调用Action的过程前后，涉及到相关拦截器（Intercepter）的调用。
+
+　　8、一旦Action执行完毕，ActionInvocation负责根据struts.xml中的配置找到对应的返回结果。返回结果通常是
+	  （但不总是，也可能是另外的一个Action链）一个需要被表示的JSP或者FreeMarker的模版。
+	   在表示的过程中可以使用Struts2 框架中继承的标签。在这个过程中需要涉及到ActionMapper。
+
+	注：在早期的struts2中，都是使用FilterDispathcer，从Struts 2.1.3开始，它已不推荐使用。
+	如果你使用的Struts的版本 >= 2.1.3，推荐升级到新的Filter，StrutsPrepareAndExecuteFilter。
+
+在Struts2框架中是通过struts.xml中的包来管理action、result、interceptor、interceptor-stack等配置信息的
+
+struts.xml中设置package为abstract，则不用定义action
+
+异常处理：execute()会抛出所有异常，在struts.xml配置异常捕捉的拦截器，在action或global定义异常映射<exception-mapping>
+
+Struts2的国际化：可以为JSP页面、Action、全局范围分别提供不同的国际化资源
+	1.让系统加载国际化资源文件。有两种方式	1.1 自动加载：Action范围、全局范围的国际化资源文件由系统自动加载
+											1.2 手动加载：JSP范围、全局范围的国际化资源文件分别使用标签、配置常量的方式来手动加载
+	2.输出国际化。有两种方式  2.1 在视图页面上输出国际化消息，需要使用Struts2的标签库
+							  2.2 在Action类中输出，需要使用ActionSupport的getText()方法来完成
+
+	在JSP页面指定国际化资源需<s:i18n.../>，其中<s:text name= />标签会输出指定内容，其他标签使用key属性来输出指定内容。
+		文件名JSP名_language_country.properties，
+	Action范围内的国际化资源有三种方式实现，上面的两种，还有Action类中使用getText(String name)方法，参数name指定了key。
+		文件名Action名_language_country.properties，与Action放在一个文件夹下
+	包范围的国际化资源文件，加载方式与Action相似，区别是：包范围的国际化资源文件可以被该包下所有Action使用。不推荐
+		文件名package_language_country.properties，放在包的根路径下
+	全局国际化资源，配置常量struts.custom.i18n.resources,值为文件的baseName。不推荐把所有都放在这里
+
+	
+Value Stack		作用：作为数据中转站，用于在前台后台之间传递数据
+	生命周期：在struts-default.xml文件中决定了在web容器启动时将会创建OgnlValueStackFactory对象，
+			  该对象实现了ValueStackFactory接口，负责ValueStack的创建工作。
+			  ValueStack的生命周期是随着request的创建而创建，随request的销毁而销毁。
+			  
+	Value Stack结构：主要看OgnlValueStack类，此类实现了ValueStack接口。在OgnlValueStack中有两个至关重要的东西，
+		CompoundRoot root；	简称“对象栈”Value Stack						CompoundRoot继承了ArrayList类，就是一个List集合
+		transient Map<String,Object> context;	“Map“栈	Stack Context	context实际上是一个hashMap,它包含一系列对象，包括 
+	request，session，attr，application，map 等ValueStack中保存的值可以直接取，而stack中的需要在前面加#(request,session,application)
+		
+	值栈中的Action实例　　
+		Struts2框架总是把Action实例放在栈顶。因为Action在值栈中，而值栈又是OGNL中的根，
+		所以引用Action的属性可以省略“#”标记，这也是为什么我们在结果页面中可以直接访问Action的属性的原因。	
+	
+	使用Value Stack：
+		1.push(Object o)方法：root.push(o);		在root中为add(0,o);
+		2.set(String key,Object o)方法：map.put(key,o);	
+		3.pop()方法：root.pop();	在root中为remove(0);	移除栈顶对象
+		4.peek()方法：root.peek();	在root中为get(0);		获取栈顶对象
+		
+	所以即可总结出使用方法：
+		1.将数据放入值栈,将对象放入栈顶：
+			a)   ActionContext.getContext().getValueStack().push("aa);
+			b)   ActionContext.getContext().getValueStack().getRoot().add(0,"bb");
+
+			将数据放入map栈
+			ActionContext.getContext().getValueStack().set(“a”,”a”);
+
+		2.从值栈中获取数据,获取栈顶数据
+             i. ActionContext.getContext().getValueStack().peek();
+             ii.ActionContext.getContext().getValueStack().getRoot().get(0);
+
+		一般情况下，将对象放入栈顶之前先移除栈顶对象，这样可以节省内存空间。
+
+		重要：1.Iterator标签当前迭代的对象在栈顶。
+			  2.Iterator标签的value可以不写，默认是迭代栈顶元素。
+	
+	
+输入校验：也可以用注解
+	有两种风格，字段校验器 —— <validators> <field name="被校验字段"> <field-validator type="校验器名"> <param>和<message>
+			  非字段校验器 —— <validators> <validator type="校验器名"> <param name="fieldName>和<param name="参数名">和<message>
+	
+	有两种位置，服务器端：编写校验文件 Action名-validation.xml 保存在Action同目录下
+				客户端：跟服务器端基本相同，只需将页面表单元素改成Struts2标签生成的表单，并为其增加validate="true"属性
+				
+	关于错误信息：类型转换失败的提示信息，输入校验失败的提示信息都被封装成FieldError，并放入Value Stack中，可使用<s:fielderror />输出
+			如果使用了Struts2的表单标签来生成表单，会自动输出错误提示
+	
+	短路校验器：如果有两个校验，第一个没通过就不进行第二个校验，在校验文件里给第一个校验器添加short-circuit="true"属性
+
+	一个Action有多个方法，校验文件可命名为 Action名-方法名-validation.xml 也是放在Action同目录下，同时，之前的总校验文件也起作用
+		如果还有继承关系，则自上而下搜索所有有关校验规则，全部启用，如果冲突，后面文件的校验规则取胜
+		
+	校验器执行顺序：所有非字段风格校验器优先于字段风格校验器，并且都是排在前面的先执行
+	
+	Action中重写ActionSupport的validate()方法，也可以为多个逻辑处理配置validateXxx()方法
+	
+	
+	
+拦截器机制:		struts-default.xml文件已经配置了大量拦截器，只要包继承了struts-dafault包，就可以直接使用defaultStack
+	在struts.xml中定义拦截器，<package><interceptors> <interceptor name="" class="" /> <param name="参数名">参数值</param>
+	
+	可以把多个拦截器连在一起组成拦截器栈，<interceptors> <interceptor-stack name="栈名"> <interceptor-ref name="拦截器名"> 
+	
+	为包配置默认拦截器，只能有一个，如果该包中的Action没有显式指定拦截器，则默认的会起作用
+	<package> <default-interceptor-ref name="拦截器或拦截器栈"> 如果Action显式指定了拦截器，该默认不起作用
+	
+	使用拦截器：通过<interceptor>定义，通过在Action下指定<interceptor-ref>来使用
+
+	拦截器类：要实现Interceptor接口，接口有三个方法 init()、destory()、intercept(ActionInvocation invocation)
+		intercept方法是需要实现的拦截动作，若返回了一个字符串作为逻辑视图，系统会跳转到对应的实际视图资源，不会调用被拦截的Action
+		若返回的是invocation.invoke()方法，会将控制器转给下一个拦截器或Action的execute()方法
+	
+	
+	
+	
+convention 约定优于配置
+	要使用Convention插件，需将struts2-convention-plugin.jar放入lib中即可
+	它会自动搜索位于action、actions、struts、struts2包下的所有类，并将以下两种Java类当成Action处理：
+		*所有实现了com.opensymphony.xwork2.Action的Java类
+		*所有类名以Action结尾的Java类
+	命名空间是以四个包为根"/"	Action的name属性为：将结尾的Action去掉，驼峰写法转换成小写的中折线写法，访问它可加可不加.action
+	加不加.action是由常量struts.action.extension决定的，默认为"action,,"
+	
+	可通过常量struts.convention.package.locators来修改要搜索的包。
+	通过常量struts.convention.default.parent.package修改映射Action的父包，默认convention-default，这在配置拦截器时有用
+	
+	约定映射Result：默认去WEB-INF/content路径下寻找，名为actionName-resultCode.suffix
+		如com.user.LoginAction返回success时，优先考虑使用WEB-INF/content/user/login-success.jsp
+			若找不到也可以使用同目录下的login.jsp
+	
+	可以使用Config Browser插件查看映射情况，包括用struts.xml的配置，将struts2-config-browser-plugin.jar放入lib中，重启WEB应用
+		地址Web_Context/config-browser/index.action
+	
+	Action链的约定：遵守以下3个约定
+		*第一个Action返回的逻辑视图字符串没有对应的视图资源
+		*第二个Action与第一个Action处于同一个包下
+		*第二个Action映射的URL为：firstActionName+resultCode
+	例如，com.FirstAction结束后返回second，要进入第二个Action继续处理就要在同目录下创建FirstSecondAction.java
+	
+	
+常见的一些约定：
+	1.默认把所有结果页面都存储在WEB-INF/content文件夹下，可以修改
+	2.在应用启动的时候，Convention插件会自动搜索位于action、actions、struts、struts2的包及其子包下的所有Java类，以搜索Action类。
+	3.对应resutl 页面的约定：
+	（1）Result页面默认的都以WEB-INF/content作为定位的起点。
+	（2）如果没有对应的Action存在，那么访问资源的名称就直接和页面的名称对应，要注意都是小写的，页面默认在WEB-INF/content下
+	（3）如果有对应的Action存在，那么对应的方式是：优先按照“Action的URL+Result的字符串+文件类型的后缀”的方式进行对应，
+			如果没有对应的页面，那么也可以按照“Action的URL+文件类型的后缀”的方式进行对应。
+	
+	
+
+struts2中的struts.action.extension和web.xml中配置的filter的关系？
+	web.xml里面的这个filter，他本质是一个过滤器，这里设置的内容就是我们要让这个过滤器过滤的内容 /*，
+		我们的这个配置的意思是所有的链接地址都要经过struts2的过滤器的处理.  相当于第一层过滤
+	struts.action.extension这个里面指定的扩展名，也就是说默认是action的我们才交给struts2控制器来处理，
+		不是action扩展的我们不管（如图片、JS、CSS文件等）  相当于第二层过滤
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

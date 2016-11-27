@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Prototype原型模式</title>
+</head>
+<body>
+<script type="text/javascript">
+	function Person(name,age,job){
+		this.name = name;
+		this.age = age;
+		this.job = job;
+	}
+	Person.prototype.sayName = function(){
+		console.log(this.name);
+	}
+	var p1 = new Person('yetao', 12, 'Developer');
+	var p2 = new Person('mengyun', 11, 'Teacher');
+	p1.sayName();
+	p2.sayName();
+	console.log(p1.sayName == p2.sayName);
+	console.log(Person.prototype.isPrototypeOf(p1));
+</script>
+</body>
+</html>

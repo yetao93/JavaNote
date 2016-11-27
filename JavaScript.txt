@@ -1,0 +1,262 @@
+HTML 中的脚本必须位于 <script> 与 </script> 标签之间。
+脚本可被放置在 HTML 页面的 <body> 和 <head> 部分中。通常的做法是放入 <head> 部分中，或者放在页面底部，放在底部比较好
+
+那些老旧的实例可能会在 <script> 标签中使用 type="text/javascript"。
+现在已经不必这样做了。JavaScript 是所有现代浏览器以及 HTML5 中的默认脚本语言。
+
+5种基本数据类型：Undefined，Null，Boolean，Number，String
+1种复杂数据类型：Object，
+	可使用操作符typeof来检测
+
+JavaScript 中的所有事物都是对象：字符串、数字、数组、日期，等等。
+在 JavaScript 中，对象是拥有属性和方法的数据。
+
+相等操作符 == ：先转换在比较
+全等操作符=== ：不转换仅比较
+
+JavaScript的switch语句，可以使用任何数据类型。
+
+函数是由事件驱动的或者当它被调用时执行的可重复使用的代码块。
+
+局部 JavaScript 变量
+在 JavaScript 函数内部声明的变量（使用 var）是局部变量，所以只能在函数内部访问它。（该变量的作用域是局部的）。
+您可以在不同的函数中使用名称相同的局部变量，因为只有声明过该变量的函数才能识别出该变量。
+只要函数运行完毕，本地变量就会被删除。
+
+没有块级作用域：在if、for等语句中声明的变量将会添加到当前的执行环境！在if、for执行结束后仍可使用
+
+如果您把值赋给尚未声明的变量，该变量将被自动作为全局变量声明。
+变量前有var声明的是局部变量，只能在自己的方法里使用，在调用其他方法时，如果没有作为参数传递，则其他方法不能用
+没有var声明的是全局变量，不需要作为参数传递，直接在其他方法里使用，可以让鼠标点击变量，看背景颜色知道是否全局变量
+
+JavaScript 是脚本语言。浏览器会在读取代码时，逐行地执行脚本代码。而对于传统编程来说，会在执行前对所有代码进行编译。
+
+遇到"</script>"时就会结束，可通过转义字符"\"来解决，"<\/script>"
+
+不能在HTML文档中使用<script.../>，可能无法正确解析。带有src属性后，就不能在其中包含额外代码，会被忽略
+
+如果重新声明 JavaScript 变量，该变量的值不会丢失：在以下两条语句执行后，变量 carname 的值依然是 "Volvo"：
+var carname="Volvo";	var carname;
+
+对于数组的4个操作：
+	push()在末尾推入。pop()在末尾弹出。unshift()在前端添加。shift()在前端移除。
+
+对象由花括号分隔。在括号内部，对象的属性以名称和值对的形式 (name : value) 来定义。属性由逗号分隔：
+var person={firstname:"Bill", lastname:"Gates", id:5566};
+上面例子中的对象 (person) 有三个属性：firstname、lastname 以及 id。
+
+对象属性有两种寻址方式：name=person.lastname;	name=person["lastname"];
+
+如需从 JavaScript 访问某个 HTML 元素，可以使用 document.getElementById(id) 方法。
+
+元素的内容  innerHTML
+
+如果在文档已完成加载后执行 document.write，整个 HTML 页面将被覆盖
+
+比如添加事件监听，map.addEventListener("zoomend",changed);只能写方法名changed，不能加()，也可以写匿名方法
+	changed()方法要写在旁边，不能超出原方法，且无参但可以有e事件本身作为参数，因为在原方法内部，所以其变量都可以调用
+
+要访问函数的指针而不执行函数的话，必须去掉函数名后面的那对圆括号。不然就是执行之后的结果。
+
+在代码开始执行之前，解析器通过一个名为函数声明提升的过程，读取并将函数声明添加到执行环境中。所以声明函数的代码在调用它的代码后也没事。
+
+
+
+
+
+
+
+
+
+
+
+jQuery 是一个 JavaScript 函数库。
+
+jQuery 库包含以下特性：
+	HTML 元素选取、HTML 元素操作、CSS 操作、HTML 事件函数、JavaScript 特效和动画、HTML DOM 遍历和修改、AJAX、Utilities
+
+在<head>部分添加jQuery库<script src="jquery-2.1.4.min.js"></script>或输入Google、Microsoft保存的库的地址
+
+通过 jQuery，可以选取（查询，query） HTML 元素，并对它们执行“操作”（actions）。
+
+jQuery 语法，基础语法$(selector).action()
+	美元符号定义jQuery     选择符（selector）“查询”和“查找” HTML 元素	     jQuery 的 action() 执行对元素的操作
+
+	$(this).hide();    - 隐藏当前元素
+	$("p").hide(); 	   - 隐藏所有段落
+	$(".test").hide(); - 隐藏所有 class="test" 的所有元素
+	$("#test").hide(); - 隐藏所有 id="test" 的元素
+	$("button").click(function(){...});
+
+jQuery 元素选择器
+    jQuery 使用 CSS 选择器来选取 HTML 元素。
+	$("p") 选取 <p> 元素。
+	$("p.intro") 选取所有 class="intro" 的 <p> 元素。
+	$("p#demo") 选取所有 id="demo" 的 <p> 元素。
+
+选择第几个元素 :eq(index)	如$("td.name:eq("+i+")") 选择class=name的第i个td元素
+得到input的值：$("#id").val();
+或document.getElementById("id").value;
+
+jQuery 属性选择器
+    jQuery 使用 XPath 表达式来选择带有给定属性的元素。
+	$("[href]") 选取所有带有 href 属性的元素。
+	$("[href='#']") 选取所有带有 href 值等于 "#" 的元素。
+	$("[href!='#']") 选取所有带有 href 值不等于 "#" 的元素。
+	$("[href$='.jpg']") 选取所有 href 值以 ".jpg" 结尾的元素。
+
+jQuery 名称冲突:
+    jQuery 使用 $ 符号作为 jQuery 的简介方式。如有冲突，可以通过noConflict()方法来解决
+	var jq = jQuery.noConflict(); 就使用了jq代替$
+	$.noConflice(); 使用jQuery代替$
+	
+自定义动画：
+	$(selector).animate({B-params},speed,callback);	如 $("div").animate({left:'250px'}); 移动到距离左边250px处
+		HTML元素默认不能移动，如需对位置操作，要把CSS position设置为relative、fixed或absolute!
+
+	可操作多个属性，如$("div").animate({left:'250px',opacity:'0.5',height:'150px',width:'150px'});
+		几乎可以操作所有CSS属性，必须用驼峰命名法，如使用 paddingLeft 而不是 padding-left，另外，没有色彩动画，需插件
+
+	可使用相对值，如$("div").animate({left:'250px',height:'+=150px',width:'+=150px'});
+
+	可设置为"shoe"、"hide"、"toggle"， 如 $("div").animate({height:'toggle'});  
+
+ 	还有队列功能，按顺序依次执行多个动画
+
+JQuery方法链接：$("#p1").css("color","red").slideUp(2000).slideDown(2000);会对同一个元素依次执行
+
+
+
+
+JQuery —— HTML
+
+获取内容：text() - $("#test").text() 设置或返回所选元素的文本内容	
+		   
+	  html() - $("#test"). html() 设置或返回所选元素的内容（比text()方法多了 HTML 标记）
+	           
+	  val()  - $("#test").val()  设置或返回表单字段的值，输入的值
+
+获取属性：attr() - $("#w3s").attr("href") 获取id为w3s的href属性值
+
+创建元素：var txt2 = $("<i></i>").text("love "); 即<i>love</i>  
+
+设置内容：与获取内容相同的三个方法，$("#test").text("要设置的内容！");
+
+	这三个方法有回调函数，有两个参数：被选元素列表中当前元素的下标，以及原始（旧的）值
+ 		$("#test1").text(function(i,origText){
+  	  	return "Old text: " + origText + " New text: Hello world!(index: " + i + ")";});
+
+设置属性：同样用attr()	$("#w3s").attr("href","http://www.w3school.com.cn/jquery");
+	  也可以设置多个属性$("#w3s").attr({
+    				"href" : "http://www.w3school.com.cn/jquery",
+    				"title" : "W3School jQuery Tutorial"});
+	 也有回调函数，同上
+
+删除属性	$("img").removeAttr("src");
+
+添加文本、HTML、元素：
+	append() - 在被选元素的结尾插入内容
+	prepend()- 在被选元素的开头插入内容，以上都是同一个元素内部的前后操作
+	after()  - 在被选元素之后插入内容
+	before() - 在被选元素之前插入内容
+
+删除HTML元素：remove() - 删除被选的元素及其子元素  $("#div1").remove();
+		过滤被删除的元素  $("p").remove(".italic"); 删除p元素中class=italic的元素
+
+	      empty()  - 从被选元素中删除子元素
+
+关于JQuery遍历的方法，大多显而易懂，就不写了，详见参考手册
+
+
+jQuery - AJAX load() 方法
+	从服务器加载数据，并把返回的数据放入被选元素中	$(selector).load(B-URL,data,callback);
+	例如$("button").click(function(){
+ 		 $("#div1").load("demo_test.txt",function(responseTxt,statusTxt,xhr){
+    			if(statusTxt=="success")
+     			   alert("外部内容加载成功！");
+   			if(statusTxt=="error")
+   			   alert("Error: "+xhr.status+": "+xhr.statusText);
+ 			 });
+		});
+	responseTxt - 包含调用成功时的结果内容	statusTXT - 包含调用的状态	xhr - 包含 XMLHttpRequest 对象
+
+
+jQuery - AJAX get() 和 post() 方法
+	$.get() 方法通过 HTTP GET 请求从服务器上请求数据。	$.get(B-URL,callback);
+		$.get("demo_test.asp",function(data,status){
+		    alert("Data: " + data + "\nStatus: " + status);});
+
+	$.post() 方法通过 HTTP POST 请求从服务器上请求数据。	$.post(URL,data,callback);
+		$("button").click(function(){
+  			$.post("demo_test_post.asp",
+			{
+   			   name:"Donald Duck",
+    			   city:"Duckburg"
+  			 },
+ 			 function(data,status){
+   				 alert("Data: " + data + "\nStatus: " + status);});});
+
+
+
+
+AJAX	XMLHttpRequest 是 AJAX 的基础。
+	XMLHttpRequest 用于在后台与服务器交换数据。这意味着可以在不重新加载整个网页的情况下，对网页的某部分进行更新。
+
+向服务器发送请求，使用 XMLHttpRequest 对象的 open() 和 send() 方法：
+	open(method,url,async)	method：请求的类型；GET 或 POST	   url：文件在服务器上的位置   async：true 异步 或 false 同步
+	send(string)
+
+服务器响应，如需获得来自服务器的响应，请使用 XMLHttpRequest 对象的 responseText 或 responseXML 属性。获得数据的形式不同
+
+在js中得到Ajax，为了兼容所有浏览器：
+function getHTTPObject() {
+	if(typeof XMLHttpRequest == "undefined")
+		XMLHttpRequest = function() {
+			try {return new ActiveXObject("Msxml2.XMLHTTP.6.0");} catch (e) {}
+			try {return new ActiveXObject("Msxml2.XMLHTTP.3.0");} catch (e) {}
+			try {return new ActiveXObject("Msxml2.XMLHTTP");} catch (e) {}
+			return false;
+		}
+	return new XMLHttpRequest();
+}
+
+	
+Ajax:	$.get(url,data,success(response,status,xhr),dataType);
+	$.post(url,data,success(data, textStatus, jqXHR),dataType);
+	$.ajax({url: ,data: ,success: ,dataType: ,error: });
+
+返回的类型dataType有:
+"xml": 返回 XML 文档，可用 jQuery 处理。
+"html": 返回纯文本 HTML 信息；包含的 script 标签会在插入 dom 时执行。
+"script": 返回纯文本 JavaScript 代码。不会自动缓存结果。除非设置了 "cache" 参数。
+	  注意：在远程请求时(不在同一个域下)，所有 POST 请求都将转为 GET 请求。（因为将使用 DOM 的 script标签来加载）
+"json": 返回 JSON 数据 。
+"jsonp": JSONP 格式。使用 JSONP 形式调用函数时，如 "myurl?callback=?" jQuery 将自动替换 ? 为正确的函数名，以执行回调函数。
+"text": 返回纯文本字符串
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

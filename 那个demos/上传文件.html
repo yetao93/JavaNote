@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html ng-app="fileUpload">
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+	<!-- shim is needed to support upload progress/abort for HTML5 and non-HTML5 FormData browsers.--><!-- angular-file-upload-html5-shim.js could be used instead of angular-file-upload-shim if your app targets HTML5 browsers only (not IE8-9) --><!-- Note: shim.js MUST BE PLACED BEFORE angular.js and angular-file-upload.js AFTER angular.js-->
+	
+	<script src="angular.min.js"></script>
+	<script src="angular-file-upload.min.js"></script>
+
+	<div ng-controller="MyCtrl">
+		<input type="text" ng-model="myModelObj">
+		<input type="file" ng-file-select="onFileSelect($files)">
+		<input type="file" ng-file-select="onFileSelect($files)" multiple accept="image/*">
+
+		<div class="button" ng-file-select="onFileSelect($files)" data-multiple="true"></div>
+
+		<div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class-name-or-function" 
+		ng-show="dropSupported">
+			drop files here
+		</div>
+
+		<div ng-file-drop-available="dropSupported=true" ng-show="!dropSupported">
+			HTML5 Drop File is not supported!
+		</div>
+
+		<button ng-click="upload.abort()">Cancel Upload</button>
+	</div>
+
+	<script type="text/javascript">
+		var app = angular.module('fileUpload', ['angularFileUpload']);
+		app.controller('MyCtrl',['$scope','$upload',function($scope,$upload){
+			$scope.onFileSelect = function($files){
+				
+					var file = $files[0];
+					$scope.upload = $upload.upload({
+						url:'localhost:8080/watersupply/fileop/upload',
+						data:{myObj:$scope.myModelObj},
+						file:file,
+						params:{"type":"2"}//在后台HttpServletRequest中，通过getParameter("type")取到
+					}).progress(function(evt){
+						console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+					}).success(function(data,status,headers,config){
+						console.log(data);
+					});			
+				
+			};
+		}]);
+	</script>
+</body>
+</html>

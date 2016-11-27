@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html ng-app="fileUpload">
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+	<script src="angular.min.js"></script>
+	<div ng-controller="MyCtrl1">
+		<button>提交1</button>
+	</div>
+	<div ng-controller="MyCtrl2">
+		<button>提交2</button>
+	</div>
+
+
+	<script type="text/javascript">
+		var app = angular.module('fileUpload',[]);
+		app.controller('MyCtrl1',function($rootScope,$scope){
+			$rootScope.list = function(){
+				alert("you");
+			}
+			$rootScope.list();
+			$scope.list();
+		}).controller('MyCtrl2',function($rootScope,$scope){
+			$rootScope.list();
+			$scope.list();
+		});
+	</script>
+</body>
+</html>

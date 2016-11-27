@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<meta charset="utf-8">
+	<script src="angular.min.js"></script>
+</head>
+<body>
+	
+	<div ng-controller="MyCtrl">
+		{{v3}}
+	</div>
+	<script type="text/javascript">
+		var app = angular.module('myApp',[]);
+		app.controller('MyCtrl',['$scope',function($scope){
+
+			$scope.f1 = function(){
+				$scope.v1 = "奥比岛";
+				if (!!$scope.v1) {
+					$scope.v3='fsd';
+				}
+			}
+
+			$scope.f1();
+
+			$scope.v2 = $scope.v3;
+		}]);
+	</script>
+</body>
+</html>
