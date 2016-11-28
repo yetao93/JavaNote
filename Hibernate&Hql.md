@@ -140,7 +140,7 @@ sql2用setParameter(String,Object)，索引为：后面的字符串
 
 **cascade**，默认不启用任何级联。对关联实体采取的级联策略，可组合，可用Hibernate的注解@Cascade代替，后面有详解
 
-**fetch**，抓取关联实体的策略，对One端默认是Eager，对Many端默认Lazy
+**fetch**，抓取关联实体的策略，对One端默认是Eager，对Many端默认Lazy，在之后SSH结合时再多做测试
 
 **mappedBy**，表示当前实体不控制关联关系，指向关联实体内自己的属性名，不能再用@JoinColumn、@JoinTable
 
@@ -174,4 +174,6 @@ sql2用setParameter(String,Object)，索引为：后面的字符串
 
 基于外键关联的，对从表设置为SAVE_UPDATE，取得较为理想的效果，从表记录保存时，会级联保存主表记录。对主表设置DELETE，删除主表记录时，会级联删除从表的记录（若有必要）。
 
+基于连接表的，对一个关联实体设置SAVE_UPDATE，可级联保存另一个关联实体。设置DELETE，删除该关联实体记录时，**会同时删除连接表的有关记录和另一个关联实体的有关记录！慎用！**
 
+####总结，一般来说，对控制关联关系的一端设置Hibernate自带的cascade注解为SAVE_UPDATE取得最好效果。
