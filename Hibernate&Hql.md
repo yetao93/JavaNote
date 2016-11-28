@@ -168,6 +168,10 @@ sql2用setParameter(String,Object)，索引为：后面的字符串
 
 级联的意思应该是对相关联的实体进行的操作。没考虑清楚前就不要设置了，或者只设置个级联保存
 
-测试的时候有问题，只有设置为ALL才能级联保存，其他的都不行，为什么
+测试`javax.persistence.CascadeType`的时候有问题，只有设置为ALL才能级联，其他的都不行，为什么?
+
+改为使用`org.hibernate.annotations.Cascade`和`org.hibernate.annotations.CascadeType`。
+
+基于外键关联的，对从表设置为SAVE_UPDATE，取得较为理想的效果，从表记录保存时，会级联保存主表记录。对主表设置DELETE，删除主表记录时，会级联删除从表的记录（若有必要）。
 
 
