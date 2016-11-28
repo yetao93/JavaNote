@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<meta charset="utf-8">
+	<script src="angular.min.js"></script>
+</head>
+<body>
+	
+	<div ng-controller="MyCtrl">
+		<div ng-repeat="i in items">
+			<input type="radio" name="my" ng-click="iclick(i.id)" ng-checked="$index == 2" />{{i.name}}
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		var app = angular.module('myApp',[]);
+		app.controller('MyCtrl',['$scope',function($scope){
+			$scope.items = [{'id':1,'name':'aa'},{'id':2,'name':'bb'},{'id':3,'name':'cc'},{'id':4,'name':'dd'}];
+			$scope.iclick = function(id){
+				console.log(id);
+			}
+		}]);
+	</script>
+
+</body>
+</html>

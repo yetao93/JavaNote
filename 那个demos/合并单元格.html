@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<meta charset="utf-8">
+	<script src="angular.min.js"></script>
+</head>
+<body>
+	
+	<div ng-controller="MyCtrl">
+		<table border="1">
+			<thead>
+				<th>街道</th>
+				<th>人员</th>
+				<th>联系方式</th>
+			</thead>
+			<tbody ng-repeat="(k,v) in map">
+				<tr ng-repeat="n in v">
+					<td ng-if="$index==0" rowspan={{v.length}}>{{k}}</td>
+					<td>{{n.person}}</td>
+					<td>{{n.tel}}</td>
+				</tr>
+			</tbody>
+		</table>>
+	</div>
+
+	<script type="text/javascript">
+		var app = angular.module('myApp',[]);
+		app.controller('MyCtrl',['$scope',function($scope){
+			$scope.map = 
+			{
+				'跃龙街道':[{'person':'工作人员1','tel':123},{'person':'工作人员2','tel':234}],
+				'桃源街道':[{'person':'工作人员3','tel':345},{'person':'工作人员4','tel':456},{'person':'工作人员5','tel':567},{'person':'工作人员6','tel':789}]
+			};
+		}]);
+	</script>
+</body>
+</html>

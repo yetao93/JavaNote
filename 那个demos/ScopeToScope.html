@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html ng-app="MyApp">
+<head>
+	<title>ScopeToScope</title>
+</head>
+<body>
+	<script src="angular.min.js"></script>
+
+	<div ng-controller="MyCtrl1"></div>
+	<div ng-controller="overviewCtrl"></div>
+	
+	
+
+	<script type="text/javascript">
+		var app = angular.module('MyApp',[]);
+		app.controller('overviewCtrl',function($rootScope,$scope){
+			$scope.getTreeNode=function(id){
+				console.log(id);
+			}
+
+			$scope.getTreeNode2=function(id){
+				console.log(id);
+			}
+
+			$scope.getTreeNode3=function(id){
+				console.log(id);
+			}
+
+		}).controller('MyCtrl1',function($rootScope,$scope){
+			var appElement = document.querySelector('[ng-controller=overviewCtrl]');
+			var $scope1 = angular.element(appElement).scope();
+			$scope1.getTreeNode(1);
+			$scope1.getTreeNode2(2);
+			$scope1.getTreeNode3(3);
+});
+
+</script>
+</body>
+</html>

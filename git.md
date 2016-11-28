@@ -436,3 +436,8 @@ Git鼓励大量使用分支：
 
 ---
 
+###windows使用git时出现：warning: LF will be replaced by CRLF
+$ rm -rf .git  // 删除.git  
+$ git config --global core.autocrlf false  //禁用自动转换    
+$ git init    
+$ git add .  

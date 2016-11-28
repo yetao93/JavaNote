@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<meta charset="utf-8">
+	<script src="angular.min.js"></script>
+</head>
+<body>
+	
+	<div ng-controller="MyCtrl">
+		{{title}}
+	</div>
+
+	<script type="text/javascript">
+		var app = angular.module('myApp',[]);
+		app.controller('MyCtrl',['$scope',function($scope){
+			$scope.title = '安全生产会议';
+		}]).controller('MyCtrl',['$scope',function($scope){
+			$scope.title = '哇哈哈';
+		}]);
+	</script>
+</body>
+</html>
