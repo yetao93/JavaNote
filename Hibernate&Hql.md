@@ -18,7 +18,7 @@
 
 完成消息插入的工作，一个java类，PO只有在Session的管理下才可完成数据库的访问。步骤：
 
-1.开发持久化类 
+1.开发持久化类domain
 
 2.获取Configuration 
 
@@ -31,13 +31,46 @@
 6.关闭事务，关闭Session
 
 
+###关于实体类domain
 
-## Details
+1. 持久化类的类名不能重复！不同包也不行 
+
+2. Hibernate 要求声明集合属性只能用 Set、List、Map、SortedSet、SortedMap 等接口，而不能用 HashSet、ArrayList、HashMap、TreeSet、TreeMap 等实现类。其原因就是因为 Hibernate 需要对集合属性进行延迟加载，而 Hibernate 的延迟加载是依靠 PersistentSet、PersistentList、PersistentMap、PersistentSortedMap、PersistentSortedSet 这些Hibernate提供的实现类来完成的。不过 PersistentSet 等集合里持有一个 session 属性，这个 session 属性就是 Hibernate Session，当程序需要访问 PersistentSet 集合元素时，PersistentSet 就会利用这个 session 属性去抓取实际的对象对应的数据记录。
 
 
-### 在Hibernate中使用sql语句来查询，得到结果：
 
 
+
+##在Hibernate中使用hql语句查询：
+
+####查询整个实体类，得到List&lt;domain&gt;
+	String hql = "from Users";
+    Query query = session.createQuery(hql);   
+	List<Users> users = query.list();   　
+
+####查询其中几个字段，得到List&lt;Object[]&gt;   
+        String hql = " select name,passwd from Users";   
+        Query query = session.createQuery(hql);  
+        List<Object[]> list = query.list();   
+
+####修改默认查询结果query.list()不以Object[]数组形式返回，以List形式返回
+	String hql = " select new list(name,passwd) from Users";   
+	Query query = session.createQuery(hql);   
+    List<List> list = query.list();  
+
+####修改默认查询结果(query.list())不以Object[]数组形式返回，以Map形式返回，带有字段名
+	String hql = " select new map(name as username,passwd as password) from Users";
+	Query query = session.createQuery(hql);   
+    List<Map<String,Object>> list = query.list();  
+
+####执行更新、删除操作，要加executeUpdate()
+	String hql = "delete from Officer where id =1";
+	Query query = session.createQuery(hql);
+	query.executeUpdate();
+
+---
+
+## 在Hibernate中使用sql语句来查询，得到结果：
 
     String sql = "select * from user";
     SQLQuery query = session.createSQLQuery(sql);
@@ -75,13 +108,23 @@ sql3是对sql1的自定义排序，以？后面的数字为索引setParameter(In
 
 sql2用setParameter(String,Object)，索引为：后面的字符串
 
-##创建UUID
+###创建UUID
 
 	@Id
 	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 	@GeneratedValue(generator = "UUID")
+	String id; 
 
+###缓存
+**Hibernate一级缓存：**
 
+Session 级别的缓存，它同 session邦定。它的生命周期和 session相同。 Session消毁，它也同时消毁；管理一级缓存，一级缓存无法取消。
+
+**Hiberante二级缓存：**
+
+1． Hibernate3的（ sessionFactory）二级缓存和 session级别的缓存一样都只对实体对象做缓存，不对属性级别的查询做缓存；二级缓存的生命周期和 sessionFactory的生命周期是一样的， sessionFactory可以管理二级缓存；  
+
+2． sessionFactory级别的缓存，需要手动配置；所有的 session可以共享 sessionFactory 级别的缓存；（一般把一些不经常变化的实体对象放到 sessionFactory级别的缓存中，适合放不经常变化的实体对象。）  
 
 ##关联关系
 
@@ -140,7 +183,7 @@ sql2用setParameter(String,Object)，索引为：后面的字符串
 
 **cascade**，默认不启用任何级联。对关联实体采取的级联策略，可组合，可用Hibernate的注解@Cascade代替，后面有详解
 
-**fetch**，抓取关联实体的策略，对One端默认是Eager，对Many端默认Lazy，在之后SSH结合时再多做测试
+**fetch**，抓取关联实体的策略，对One端默认是Eager，对Many端默认Lazy，在之后SSH结合时再多做测试。可通过**Hibernate.initialize(list)** 强制读取数据，对数据继续采取其本身的抓取策略
 
 **mappedBy**，表示当前实体不控制关联关系，指向关联实体内自己的属性名，不能再用@JoinColumn、@JoinTable
 

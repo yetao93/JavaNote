@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<meta charset="utf-8">
+	<script src="angular.min.js"></script>
+</head>
+<body>
+	
+	<div ng-controller="MyCtrl">
+		{{title}}
+	</div>
+	<script type="text/javascript">
+		var app = angular.module('myApp',[]);
+		app.controller('MyCtrl',['$scope',function($scope){
+			var t1 = '安全/生产/会议';
+			var t2 = t1.replace("/","a");
+			$scope.title = t2;
+		}]);
+	</script>
+</body>
+</html>
