@@ -68,8 +68,6 @@
 	Query query = session.createQuery(hql);
 	query.executeUpdate();
 
----
-
 ## 在Hibernate中使用sql语句来查询，得到结果：
 
     String sql = "select * from user";
@@ -220,3 +218,36 @@ Session 级别的缓存，它同 session邦定。它的生命周期和 session�
 基于连接表的，对一个关联实体设置SAVE_UPDATE，可级联保存另一个关联实体。设置DELETE，删除该关联实体记录时，**会同时删除连接表的有关记录和另一个关联实体的有关记录！慎用！**
 
 ####总结，一般来说，对控制关联关系的一端设置Hibernate自带的cascade注解为SAVE_UPDATE取得最好效果。
+
+##Hibernate的Session
+
+实例化的Session是一个**轻量级**的类，创建和销毁它都不会占用很多资源。这在实际项目中确实很重要，因为在客户程序中，可能会不断地创建以及销毁Session对象，如果Session的开销太大，会给系统带来不良影响。但值得注意的是 Session对象是**非线程安全**的，因此在你的设计中，最好是一个线程只创建一个Session对象。   
+
+Hibernate 自身提供了三种管理 Session 对象的方法，在 Hibernate 的配置文件中, hibernate.current_session_context_class 属性用于指定 Session 管理方式
+
+- Session 对象的生命周期与本地线程绑定（thread）
+- Session 对象的生命周期与 JTA 事务绑定 （jta）
+- Hibernate 委托程序管理 Session 对象的生命周期（managed）
+
+Hibernate 按以下规则把 Session 与本地线程绑定
+
+1. 当一个线程(threadA)第一次调用 SessionFactory 对象的 getCurrentSession() 方法时, 该方法会创建一个新的 Session(sessionA) 对象, 把该对象与 threadA 绑定, 并将 sessionA 返回 
+
+2. 当 threadA 再次调用 SessionFactory 对象的 getCurrentSession() 方法时, 该方法将返回 sessionA 对象 
+
+3. 当 threadA 提交 sessionA 对象关联的事务时, Hibernate 会自动flush sessionA 对象的缓存, 然后**提交事务, 关闭 sessionA 对象**. 当 threadA 撤销 sessionA 对象关联的事务时, 也会自动关闭 sessionA 对象 
+
+4. 若 threadA 再次调用 SessionFactory 对象的 getCurrentSession() 方法时, 该方法会又创建一个新的 Session(sessionB) 对象, 把该对象与 threadA 绑定, 并将 sessionB 返回
+
+**若 Session 是由 thread 来管理的, 则在提交或回滚事务时, 已经关闭 Session 了.**
+
+##Hibernate的SessionFactory
+
+这里用到了一个设计模式――工厂模式，用户程序从工厂类SessionFactory中取得Session的实例。   
+    
+SessionFactory是**重量级**的**线程安全**的！实际上它的设计者的意图是让它能在整个应用中共享。典型地来说，**一个项目通常只需要一个SessionFactory就够了，但是当你的项目要操作多个数据库时，那你必须为每个数据库指定一个SessionFactory**。   
+SessionFactory在Hibernate中实际起到了一个缓冲区的作用，它缓冲了Hibernate自动生成的SQL语句和一些其它的映射数据，还缓冲了一些将来有可能重复利用的数据。
+
+##Hibernate的Configuration
+    
+Configuration接口的作用是对Hibernate进行配置，以及对它进行启动。在Hibernate的启动过程中，Configuration类的实例首先定位映射文档的位置，读取这些配置，然后创建一个SessionFactory对象。   
