@@ -99,6 +99,10 @@ $ git config --global user.email "email@example.com"
 
 ## 撤销修改
 
+**删除未提交的新增文件**
+
+`$ git clean -df`
+
 **丢弃工作区的修改**
 
 如果工作区的文件修改过了，不满意，要恢复到上一个版本的状态，即版本库或暂存区的内容。可使用
