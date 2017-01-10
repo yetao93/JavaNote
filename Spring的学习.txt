@@ -1,38 +1,45 @@
 Spring核心容器就是一个超级大工厂，把容器中的一切对象都称为Bean，与JavaBean必须遵守一些规范不同，Spring对Bean没有任何要求，只要是个Java类
-
 Spring的作用是管理JavaEE组件。本质是通过XML配置来驱动Java代码。
-
 A对象需要调用B对象方法的情形，被称为依赖。	Spring容器根据XML配置文件或注解来管理Bean
 
-配置文件<beans> <bean  id=""  class=""> <property name="" value="" 或 ref="" >
+资源类型地址前缀：
+	classpath:    从类路径中加载资源，与classpath:/是等价的，都是相对于类的根路径
+	classpath*:  如果有多个jar包或文件系统类路径都有一个相同的包名（如com.taogege），上者只会在第一个加载的包下查找，本者会扫描所有
 
+依赖注入通常有两种：
+	设值注入，IoC容器使用成员变量的setter方法来注入被依赖对象，一定要有setter方法
+		<beans> <bean  id=""  class=""> <property name="" value="" 或 ref="" >
+	构造注入，IOC容器使用构造器来注入被依赖对象。执行带参数的构造器，对成员变量进行初始化。
+		<beans> <bean  id=""  class=""> <constructor-arg index="" ref="" 或 value="" type="">
+	接口注入，不常用
+		
 Spring框架通过反射根据<bean>的class属性创建了一个Java对象，并以id属性的值为key，将该对象放入Spring容器中。然后再传入参数
 
-Spring有两个核心接口：BeanFactory和ApplicationContext，其中后者是前者的子接口
+Spring通过配置文件描述Bean及Bean之间的依赖关系，利用Java的反射功能实例化Bean并建立Bean之间的依赖关系。
+
+Spring容器：BeanFactory和ApplicationContext，后者建立在前者之上。
+	BeanFactory是Spring框架的基础，面向Spring本身；ApplicationContext面向Spring框架的开发者，我们使用ApplicationContext
 	BeanFactory要等到程序需要Bean实例时才创建Bean。ApplicationContext在创建时会预初始化容器中所有的singleton Bean
-
-创建好容器后有根据需不需要强制类型转换，可以有两个方法getBean
-
-依赖注入通常有两种：设值注入，IoC容器使用成员变量的setter方法来注入被依赖对象，如上
-					构造注入，IOC容器使用构造器来注入被依赖对象。执行带参数的构造器，对成员变量进行初始化。
-						<beans> <bean  id=""  class=""> <constructor-arg index="" ref="" 或 value="" type="">
-					
-ApplicationContext的事件机制：	由事件源，事件，事件监听器组成
-					ApplicationEvent类		容器事件，必须由ApplicationContext发布
-					ApplicationListener接口	监听器，可由容器中任何监听器bean担任
-						并将监听器配置在容器中，即在beans.xml中配置
-						在主程序中使用ApplicationContext的publishEvent来发布事件
 	
-让Bean获取Spring容器：
-	之前都是程序先创建Spring容器，再用getBean()方法来获取容器中的Bean，但是在Web应用中，Spring容器通常采用声明式配置产生，
-		只要在web.xml中配置一个Listener，该Listener将会负责初始化Spring容器。
-	有时，Bean需要借助于Spring容器来实现一些功能，就要获取它所在的Spring容器。
-	可以让Bean实现BeanFactoryAware接口，其中只有一个方法setBeanFactory(BeanFactory beanFactory)，该参数就是Spring容器
-	类似的接口还有ApplicationContextAware，方法为setApplicationContext(ApplicationContext ctx)
+	ApplicationContext主要实现类有
+		基于XML的配置 new ClassPathXmlApplicationContext("com/taogege/beans.xml");
+		基于Java的配置 new AnnotationConfigApplicationContext(Beans.class);
+		
+	WebApplicationContext为Web应用所准备，从中通过getServletContext()可以获得ServletContext，
+		自己作为常量ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE放置到ServletContext的属性列表中，所以可以互相访问。
+		新增了三个作用域：request、session、global session。普通的只有singleton、prototype
+		
+		WebApplicationContext初始化需要ServletContext实例，也就是说必须在拥有Web容器的前提下才能启动。
+			可以在web.xml中配置自启动的ContextLoaderServlet或定义Web容器监听器ContextLoaderListener（在Servlet2.3以上才支持）
+				两者内部都实现了WebApplicationContext实例的逻辑
+		    如需使用日志功能，自启动的话Log4jConfigServlet启动顺序要比spring容器早，监听器的话要放在前面
+			
+			基于XML的配置：在Web容器上下文参数contextConfigLocation指定配置文件位置
+			基于Java的配置：指定参数contextClass，让Spring使用AnnotationConfigWebApplicationContext而非XmlWeb*，
+									  指定参数contextConfigLocation，值为标注了@Configuration的配置类，其他的一致
 
 详解Bean
-	可以设置别名，name=""，允许包含特殊符号，还可以用<alias name="" alias="">设定别名
-	作用域，通过scope=""设定，默认singleton单例模式，还有prototype,request,session,global session,也可以自定义作用域
+	<bean>
 	
 依赖注入的数据类型，在<bean>的子元素<property>中的属性区分
 	value:基本类型及其包装类、String等
