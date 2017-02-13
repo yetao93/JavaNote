@@ -154,6 +154,24 @@ SQL> select to_number('1999') year from dual;
 ---------
      1999
 
+Oracle：
+今日：
+ and trunc(t.operatetime)=trunc(sysdate)
+本周：
+ and trunc(t.operatetime)>=trunc(next_day(sysdate-8,1)+1) and trunc(t.operatetime)<=trunc(next_day(sysdate-8,1)+7)+1
+本月：
+ and t.operatetime >=TRUNC(SYSDATE, 'MM') and t.operatetime<=last_day(SYSDATE)
+上月：
+ and to_char(i.begintime,'yyyyMM')=to_char(add_months(sysdate,-1),'yyyyMM') 
+本年度：
+ and to_char(t.operatetime,'yyyy')=to_char(sysdate,'yyyy')
+
+sql server 日期格式与字符串互相转换  
+--字符串转换成日期：CONVERT(datetime, '2015-06-15', 120)   CONVERT(datetime, '2015-06-15 23:10:10', 120)
+--日期转换成字符串：
+--CONVERT(varchar(10), t.applyTime, 120): 2006-05-16
+--CONVERT(varchar(100), t.applyTime, 120): 2006-05-16 10:57:49
+--CONVERT(varchar(100), t.applyTime, 8): 10:57:46
 
 一些题目：
 1.Rank Scores。
