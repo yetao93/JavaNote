@@ -300,24 +300,31 @@ A：Collection接口是集合接口树的根。java提供了一个操作Set、Li
 
 Q：关于输入输出流I/O
 A：流是一组有顺序的，有起点和终点的字节集合，是对数据传输的总称或抽象。即数据在两设备间的传输称为流，流的本质是数据传输，
-   根据数据传输特性将流抽象为各种类，方便更直观的进行数据操作。 
+     根据数据传输特性将流抽象为各种类，方便更直观的进行数据操作。 
+
+	  抽象类InputStream和OutputStream构成了输入/输出类层次结构的基础。
+	  （字节流不便处理Unicode编码的信息，因为其每个字符用了多个字节来表示。所以有单独的类层次结构处理它，都是基于两字节的。）
+	  
+	  抽象方法read()和write()是最基础的，读写一个字节，在执行时都将阻塞，直至字节确实被读入或者写出。
+	  
+	  完成对流的读写时应该调用close()来关闭，释放系统资源。关闭输出流的同时还会冲刷其缓冲区，也可用flush()来手动冲刷。
    
-   字符流的由来： 因为数据编码的不同，而有了对字符进行高效操作的流对象。本质其实就是基于字节流读取时，去查了指定的码表。 
-   字节流Byte和字符流Char的区别：
+	字符流的由来： 因为数据编码的不同，而有了对字符进行高效操作的流对象。本质其实就是基于字节流读取时，去查了指定的码表。 
+	字节流Byte和字符流Char的区别：
 		读写单位不同：字节流以字节（1Byte = 8bit）为单位，字符流以字符为单位，一次可能读多个字节，根据指定的编码表映射字符。
 		处理对象不同：字节流能处理所有类型的数据（如图片、avi、MP3等），而字符流只能处理字符类型的数据。
 	结论：只要是处理纯文本数据，就优先考虑使用字符流。 除此之外都使用字节流。
   
-   使用字节流读写文件：FileInputStream、FileOutputStream   
+    使用字节流读写文件：FileInputStream、FileOutputStream   
    
-   使用带缓冲的字节流读写：字节流+BufferedInputStream、字节流+BufferedOutputStream
+    使用带缓冲的字节流读写：字节流+BufferedInputStream、字节流+BufferedOutputStream
 
-   使用字符流读写：字节流+InputStreamReader、字节流+OutputStreamWriter  
+    使用字符流读写：字节流+InputStreamReader、字节流+OutputStreamWriter  
    
-   使用带缓冲的字符流读写：字符流+BufferedReader、字符流+BufferedWriter
+    使用带缓冲的字符流读写：字符流+BufferedReader、字符流+BufferedWriter
 
-   文件读取类FileReader extends InputStreamReader
-   文件输出类FileWriter extends OutputStreamWriter   已经是字符流了，只能处理纯文本数据
+    文件读取类FileReader extends InputStreamReader
+    文件输出类FileWriter extends OutputStreamWriter   已经是字符流了，只能处理纯文本数据
   
 Q：什么是Java？
 A：Java编程语言是个简单、完全面向对象、分布式、解释性、健壮、安全与系统无关、可移植、高性能、多线程和动态的编程语言。
