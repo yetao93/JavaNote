@@ -282,7 +282,65 @@ Filter生命周期
     FORWARD：如果目标资源是通过RequestDispatcher的forward()方法访问时，那么该过滤器将被调用，除此之外，该过滤器不会被调用。
     ERROR：如果目标资源是通过声明式异常处理机制调用时，那么该过滤器将被调用。除此之外，过滤器不会被调用。
 
-  
+Q：什么是Servlet？
+Servlet是用来处理客户端请求并产生动态网页内容的Java类。Servlet主要是用来处理或者是存储HTML表单提交的数据，产生动态内容，在无状态的HTTP协议下管理状态信息。
+
+Q：说一下Servlet的体系结构。
+所有的Servlet都必须要实现的核心的接口是javax.servlet.Servlet。每一个Servlet都必须要直接或者是间接实现这个接口，或者是继承javax.servlet.GenericServlet或者javax.servlet.http.HTTPServlet。最后，Servlet使用多线程可以并行的为多个请求服务。
+
+Q：Applet和Servlet有什么区别？
+Applet是运行在客户端主机的浏览器上的客户端Java程序。而Servlet是运行在web服务器上的服务端的组件。applet可以使用用户界面类，而Servlet没有用户界面，相反，Servlet是等待客户端的HTTP请求，然后为请求产生响应。
+
+Q：GenericServlet和HttpServlet有什么区别？
+GenericServlet是一个通用的协议无关的Servlet，它实现了Servlet和ServletConfig接口。继承自GenericServlet的Servlet应该要覆盖service()方法。最后，为了开发一个能用在网页上服务于使用HTTP协议请求的Servlet，你的Servlet必须要继承自HttpServlet。这里有Servlet的例子。
+
+Q：解释下Servlet的生命周期。
+对每一个客户端的请求，Servlet引擎载入Servlet，调用它的init()方法，完成Servlet的初始化。然后，Servlet对象通过为每一个请求单独调用service()方法来处理所有随后来自客户端的请求，最后，调用Servlet的destroy()方法把Servlet删除掉。
+
+Q：doGet()方法和doPost()方法有什么区别？
+doGet：GET方法会把名值对追加在请求的URL后面。因为URL对字符数目有限制，进而限制了用在客户端请求的参数值的数目。并且请求中的参数值是可见的，因此，敏感信息不能用这种方式传递。
+doPOST：POST方法通过把请求参数值放在请求体中来克服GET方法的限制，因此，可以发送的参数的数目是没有限制的。最后，通过POST请求传递的敏感信息对外部客户端是不可见的。
+
+Q：什么是Web应用程序？
+Web应用程序是对Web或者是应用服务器的动态扩展。有两种类型的Web应用：面向表现的和面向服务的。面向表现的Web应用程序会产生包含了很多种标记语言和动态内容的交互的web页面作为对请求的响应。而面向服务的Web应用实现了Web服务的端点(endpoint)。一般来说，一个Web应用可以看成是一组安装在服务器URL名称空间的特定子集下面的Servlet的集合。
+
+Q：什么是cookie？session和cookie有什么区别？
+cookie是Web服务器发送给浏览器的一块信息。浏览器会在本地文件中给每一个Web服务器存储cookie。以后浏览器在给特定的Web服务器发请求的时候，同时会发送所有为该服务器存储的cookie。下面列出了session和cookie的区别：
+无论客户端浏览器做怎么样的设置，session都应该能正常工作。客户端可以选择禁用cookie，但是，session仍然是能够工作的，因为客户端无法禁用服务端的session。
+在存储的数据量方面session和cookies也是不一样的。session能够存储任意的Java对象，cookie只能存储String类型的对象。
+
+
+Q：什么是JSP页面？
+JSP页面是一种包含了静态数据和JSP元素两种类型的文本的文本文档。静态数据可以用任何基于文本的格式来表示，比如：HTML或者XML。JSP是一种混合了静态内容和动态产生的内容的技术。这里看下JSP的例子。
+
+
+Q：JSP请求是如何被处理的？
+浏览器首先要请求一个以.jsp扩展名结尾的页面，发起JSP请求，然后，Web服务器读取这个请求，使用JSP编译器把JSP页面转化成一个Servlet类。需要注意的是，只有当第一次请求页面或者是JSP文件发生改变的时候JSP文件才会被编译，然后服务器调用servlet类，处理浏览器的请求。一旦请求执行结束，servlet会把响应发送给客户端。这里看下如何在JSP中获取请求参数。
+
+
+Q：JSP有什么优点？
+下面列出了使用JSP的优点：
+JSP页面是被动态编译成Servlet的，因此，开发者可以很容易的更新展现代码。
+JSP页面可以被预编译。
+JSP页面可以很容易的和静态模板结合，包括：HTML或者XML，也可以很容易的和产生动态内容的代码结合起来。
+开发者可以提供让页面设计者以类XML格式来访问的自定义的JSP标签库。
+开发者可以在组件层做逻辑上的改变，而不需要编辑单独使用了应用层逻辑的页面。
+
+
+Q：什么是JSP指令(Directive)？JSP中有哪些不同类型的指令？
+Directive是当JSP页面被编译成Servlet的时候，JSP引擎要处理的指令。Directive用来设置页面级别的指令，从外部文件插入数据，指定自定义的标签库。Directive是定义在<%@ 和 %>之间的。下面列出了不同类型的Directive：
+包含指令(Include directive)：用来包含文件和合并文件内容到当前的页面。
+页面指令(Page directive)：用来定义JSP页面中特定的属性，比如错误页面和缓冲区。
+Taglib指令： 用来声明页面中使用的自定义的标签库。	
+	
+111.什么是JSP动作(JSP action)？
+JSP动作以XML语法的结构来控制Servlet引擎的行为。当JSP页面被请求的时候，JSP动作会被执行。它们可以被动态的插入到文件中，重用JavaBean组件，转发用户到其他的页面，或者是给Java插件产生HTML代码。下面列出了可用的动作：
+jsp:include-当JSP页面被请求的时候包含一个文件。
+jsp:useBean-找出或者是初始化Javabean。
+jsp:setProperty-设置JavaBean的属性。
+jsp:getProperty-获取JavaBean的属性。
+jsp:forward-把请求转发到新的页面。
+jsp:plugin-产生特定浏览器的代码。 
 
   
   
