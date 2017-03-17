@@ -95,7 +95,10 @@ Spring基于Java类的配置
 	普通POJO只要标注了@Configuration注解，就可以为Spring容器提供Bean定义的信息
 	每个标注了@Bean的类方法都相当于提供了一个Bean的定义信息
 	
-	
+通过构造方法初始化Bean：
+	1.带有@Autowired注解的有参构造方法，最多一个
+	2.无参构造方法，参数为零不能有@Autowired注解
+	3.其他构造方法
 	
 	
 	
