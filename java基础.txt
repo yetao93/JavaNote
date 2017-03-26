@@ -249,7 +249,7 @@ A：主要是指程序可以访问、检测和修改它本身状态或行为的�
 	可以通过专门的Java类访问这些信息，保存这些信息的类被称为Class，有三种方法获取Class
 	1.对象的getClass()方法会返回一个Class类型的实例。
 	2.类.class返回一个Class类型的实例。
-	3.对象的getName()方法会返回类的包名类名，可以通过Class的静态方法forName(String name)得到类名对应的Class对象。
+	3.知道类的包名类名，可以通过Class的静态方法forName(String name)得到类名对应的Class对象。
 	
 
 	可以用Class的newInstance()方法快速创建一个类的实例
