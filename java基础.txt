@@ -515,7 +515,7 @@ A：流是一组有顺序的，有起点和终点的字节集合，是对数据�
 	但如果用BufferedInputStream，你每从缓冲区读取4（8192/2048=4）次才调用一次IO（假设访问内存一次0.1s），总共要128次，就128s，
 	加上总的从缓冲区拷贝数据的时间（512*0.1=51.2s），128+51.2=179.2。这里用0.1s和1s来体现IO很耗时
   
-    使用字节流读写文件：FileInputStream、FileOutputStream   
+    使用字节流读写：InputStream、OutputStream   （都是抽象类）
    
     使用带缓冲的字节流读写：字节流+BufferedInputStream、字节流+BufferedOutputStream
 
@@ -523,11 +523,13 @@ A：流是一组有顺序的，有起点和终点的字节集合，是对数据�
    
     使用带缓冲的字符流读写：字符流+BufferedReader、字符流+BufferedWriter
 
-    文件读取类FileReader extends InputStreamReader
-    文件输出类FileWriter extends OutputStreamWriter   
-		已经是字符流了，只能处理纯文本数据，但并没有实现父类中带字符集参数的构造函数，所以仅能按系统默认的字符集编解码。所以不推荐，还是用父类好。
-
-		PrintWriter和其他Writer的区别：其他Writer没有相关的格式化的方法，而PrintWriter可以在写入同时对写入的数据进行格式化。
+	基于磁盘操作的I/O：File
+		文件读取类FileReader extends InputStreamReader
+		文件输出类FileWriter extends OutputStreamWriter   
+			已经是字符流了，只能处理纯文本数据，但并没有实现父类中带字符集参数的构造函数，所以仅能按系统默认的字符集编解码。所以不推荐，还是用父类好。
+		    PrintWriter和其他Writer的区别：其他Writer没有相关的格式化的方法，而PrintWriter可以在写入同时对写入的数据进行格式化。
+		
+	基于网络操作的I/O：socket
 
 Q：对象序列化
 A：可以将任何对象写出到流中，也可以从流中读回。可以将对象保存到磁盘中，或者通过网络传输。
