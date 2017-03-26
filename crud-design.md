@@ -11,6 +11,8 @@
 3. **将map转换为bean**，将属性名作为key从map中得到value设置进对象中
 4. baseDao保存bean对象，返回id
 
+*不能级联新增*
+
 ##list
 - **URL**: /rest/dc/<dataset-name>/<entity-name>[?params]
 - **METHOD**: HTTP GET
@@ -48,7 +50,7 @@
 1. 通过baseDao根据id和entityName获得对象
 2. 同上个list()方法一样，根据expands参数加载对象中的属性，并将bean转换为map返回
 
-##update（可局部更新，除了ID）
+##update
 - **URL:** /rest/dc/<dataset-name>/<entity-name>/<id\>
 - **METHOD:** HTTP POST
 - **REQUEST BODY:** JSON 格式表示的对象内容
@@ -60,6 +62,8 @@
 3. 如果要改变对象的关联关系，直接设置新的关联属性的对象的ID
 3. 在实体类未脱离session时，设置新值后会自动保存
 4. 注意关联关系由哪一端掌控，比如修改Customer中的orders属性无效，修改Order中的customer属性有效
+
+*可以局部修改*
 
 ##remove
 - **URL:** /rest/dc/<dataset-name>/<entity-name>/<id\>
@@ -83,4 +87,8 @@
 
 若语法为hql，且resultType为map，则调用上面的restQuery()方法。
 
-如果resultType是domain，则返回List<domain\>
+如果resultType是domain，则返回List<domain\>，**直接给前端返回会导致延迟加载错误！**
+
+##难点
+1. 对延迟加载的处理
+2. 关于级联增删，延迟加载其实也相当于级联查询
