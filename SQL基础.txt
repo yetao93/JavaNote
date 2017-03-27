@@ -1,3 +1,26 @@
+Sql语句中的DDL、DML、DCL的介绍
+	DDL is Data Definition Language statements.数据定义语言，用于定义和管理 SQL 数据库中的所有对象的语言
+		1.CREATE - 创建
+		2.ALTER - 修改
+		3.DROP - 删除
+		4.TRUNCATE - TRUNCATE TABLE 在功能上与不带 WHERE 子句的 DELETE 语句相同：二者均删除表中的全部行。但 TRUNCATE TABLE 比 DELETE 速度快，且使用的系统和事务日志资源少。
+			DELETE 语句每次删除一行，并在事务日志中为所删除的每行记录一项。TRUNCATE TABLE 通过释放存储表数据所用的数据页来删除数据，并且只在事务日志中记录页的释放。
+		5.COMMENT - 注释
+		6.GRANT - 授权
+		7.REVOKE - 收回已经授予的权限
+	
+	DML is Data Manipulation Language statements. 数据操作语言，SQL中处理数据等操作统称为数据操纵语言
+		1.SELECT - 查询
+		2.INSERT - 添加
+		3.UPDATE - 更新
+		4.DELETE - 删除
+
+	DCL is Data Control Language statements. 数据控制语言，用来授予或回收访问数据库的某种特权，并控制数据库操纵事务发生的时间及效果，对数据库实行监视等
+		1.COMMIT - 提交
+		2.SAVEPOINT - 保存点
+		3.ROLLBACK - 回滚
+		4.SET TRANSACTION - 设置当前事务的特性，它对后面的事务没有影响．
+
 创建一个数据库，设定编码为UTF-8
 create database bus default character set utf8;
 
