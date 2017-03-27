@@ -33,11 +33,17 @@
 
 ###关于实体类domain
 
-1. 持久化类的类名不能重复！不同包也不行 
+持久化类的类名不能重复！不同包也不行 
 
-2. Hibernate 要求声明集合属性只能用 Set、List、Map、SortedSet、SortedMap 等接口，而不能用 HashSet、ArrayList、HashMap、TreeSet、TreeMap 等实现类。其原因就是因为 Hibernate 需要对集合属性进行延迟加载，而 Hibernate 的延迟加载是依靠 PersistentSet、PersistentList、PersistentMap、PersistentSortedMap、PersistentSortedSet 这些Hibernate提供的实现类来完成的。不过 PersistentSet 等集合里持有一个 session 属性，这个 session 属性就是 Hibernate Session，当程序需要访问 PersistentSet 集合元素时，PersistentSet 就会利用这个 session 属性去抓取实际的对象对应的数据记录。
+Hibernate 要求声明集合属性只能用 Set、List、Map、SortedSet、SortedMap 等接口，而不能用 HashSet、ArrayList、HashMap、TreeSet、TreeMap 等实现类。
 
+其原因就是因为 Hibernate 需要对集合属性进行延迟加载，而 Hibernate 的延迟加载是依靠 PersistentSet、PersistentList、PersistentMap、PersistentSortedMap、PersistentSortedSet 这些Hibernate提供的实现类来完成的。
 
+不过 PersistentSet 等集合里持有一个 session 属性，这个 session 属性就是 Hibernate Session，当程序需要访问 PersistentSet 集合元素时，PersistentSet 就会利用这个 session 属性去抓取实际的对象对应的数据记录。
+
+也正因为如此，不能直接向前端返回带有fetch=lazy的组件集合属性的domain，组件内的属性有lazy的也不行，因为返回前端后会将这些属性转为json，而此时集合是Persistent的，并且session已经关闭，就会报错。可通过Hibernate.initialize(obj)来初始化，但是如果遇到双向关联，会成了无限查询。
+
+应该将bean转为map再返回
 
 
 
@@ -211,7 +217,7 @@ Session 级别的缓存，它同 session邦定。它的生命周期和 session�
 
 测试`javax.persistence.CascadeType`的时候有问题，只有设置为ALL才能级联，其他的都不行，为什么?
 
-改为使用`org.hibernate.annotations.Cascade`和`org.hibernate.annotations.CascadeType`。
+改为使用注解`org.hibernate.annotations.Cascade`和值`org.hibernate.annotations.CascadeType`。
 
 基于外键关联的，对从表设置为SAVE_UPDATE，取得较为理想的效果，从表记录保存时，会级联保存主表记录。对主表设置DELETE，删除主表记录时，会级联删除从表的记录（若有必要）。
 
