@@ -342,6 +342,138 @@ jsp:getProperty-获取JavaBean的属性。
 jsp:forward-把请求转发到新的页面。
 jsp:plugin-产生特定浏览器的代码。 
 
+使用 Java 技术开发 WEB 应用程序 , 深入了解 Servlet 的机制对应用的开发将有重要的推动作用 . 而想深入了解 Servlet 的机制就不得不了解 javax.servlet 包 .
+ 
+javax.servlet 包中包含了 7 个接口 ,3 个类和 2 个异常类 , 它们分别是 :
+ 
+接口 :RequestDispatcher,Servlet,ServletConfig,ServletContext,ServletRequest,ServletResponse 和 SingleThreadModel
+ 
+类 :GenericServlet,ServletInputStream 和 ServletOutputStream
+ 
+异常类 :ServletException 和 UnavailableException
+ 
+Servlet 的生命周期
+ 
+在 Servlet 的接口中定义了一个 Servlet 的生命周期方法 , 分别是 Init,Service 和 Destroy
+ 
+演示了 Servlet 生命周期方法的简单 Servlet:
+ 
+import javax.servlet.*;
+import java.io.IOException;
+ 
+public class PrimitiveServlet implements Servlet {
+ 
+  public void init(ServletConfig config) throws ServletException {
+    System.out.println("init");
+  }
+ 
+  public void service(ServletRequest request, ServletResponse response)
+    throws ServletException, IOException {
+    System.out.println("service");
+  }  
+  public void destroy() {
+    System.out.println("destroy");
+  }
+ 
+  public String getServletInfo() {
+    return null;
+  }
+  public ServletConfig getServletConfig() {
+    return null;
+  }
+ 
+}
+ 
+在 Servlet 中如何获取 ServletConfig 对象 ?
+ 
+在 Servlet 的 Init 方法中 ,Servlet Container 将会传入一个 ServletConfig 对象 , 开发人员可以通过这个对象获取在 web.xml 文件中定义的 Servlet 初始化参数 .
+ 
+下面是一个获取 Servlet 初始参数的示例 :
+ 
+import javax.servlet.*;
+import java.util.Enumeration;
+import java.io.IOException;
+ 
+public class ConfigDemoServlet implements Servlet {
+ 
+  public void init(ServletConfig config) throws ServletException {
+    Enumeration parameters = config.getInitParameterNames();
+    while (parameters.hasMoreElements()) {
+      String parameter = (String) parameters.nextElement();
+      System.out.println("Parameter name : " + parameter);
+      System.out.println("Parameter value : " +
+        config.getInitParameter(parameter));
+    }
+  }
+ 
+  public void destroy() {
+  }
+ 
+  public void service(ServletRequest request, ServletResponse response)
+    throws ServletException, IOException {
+  }
+ 
+  public String getServletInfo() {
+    return null;
+  }
+ 
+  public ServletConfig getServletConfig() {
+    return null;
+  }
+}
+如何获取 ServletContext 对象 ?
+可以通过 ServletConfig 对象的 getServletContext 方法获取 ServletContext 对象
+import javax.servlet.*;
+import java.util.Enumeration;
+import java.io.IOException;
+ 
+public class ContextDemoServlet implements Servlet {
+  ServletConfig servletConfig;
+ 
+  public void init(ServletConfig config) throws ServletException {
+    servletConfig = config;
+  }
+ 
+  public void destroy() {
+  }
+ 
+  public void service(ServletRequest request, ServletResponse response)
+    throws ServletException, IOException { 
+    ServletContext servletContext = servletConfig.getServletContext();
+    Enumeration attributes = servletContext.getAttributeNames();
+    while (attributes.hasMoreElements()) {
+      String attribute = (String) attributes.nextElement();
+      System.out.println("Attribute name : " + attribute);
+      System.out.println("Attribute value : " +
+        servletContext.getAttribute(attribute));
+    }
+ 
+    System.out.println("Major version : " +
+servletContext.getMajorVersion());
+    System.out.println("Minor version : " +
+servletContext.getMinorVersion());
+    System.out.println("Server info : " + servletContext.getServerInfo());
+  }
+ 
+  public String getServletInfo() {
+    return null;
+  }
+  public ServletConfig getServletConfig() {
+    return null;
+  }
+ 
+}
+如何在 Servlet 之间共享信息 ?
+我们可以通过 ServletContext 来维护在不同 Servlet 之间共享的信息 .
+如何解决 Servlet 的多 Thread 问题 ?
+如果 Servlet 需要读写外部资源 , 我们需要考虑 Thread 的问题 , 我们可以使用声明性接口 SingleThreadModel 来避免多 Thread 之间的资源冲突问题 . 但是需要注意的是 , 如果 Servlet 仅仅只是读外部资源的话 , 我们通常不应该实现这个接口 . 如果实现这个接口 ,Servlet 在同一时刻只能服务一个用户请求 , 后至的用户请求必须在队列中等待
+
+Servlet的生命周期一般可以用三个方法来表示：
+init()：仅执行一次，负责在装载Servlet时初始化Servlet对象
+service() ：核心方法，一般HttpServlet中会有get,post两种处理方式。在调用doGet和doPost方法时会构造servletRequest和servletResponse请求和响应对象作为参数。
+destory()：在停止并且卸载Servlet时执行，负责释放资源
+初始化阶段：Servlet启动，会读取配置文件中的信息，构造指定的Servlet对象，创建ServletConfig对象，将ServletConfig作为参数来调用init()方法。所以选ACD。B是在调用service方法时才构造的
+
   
   
   
