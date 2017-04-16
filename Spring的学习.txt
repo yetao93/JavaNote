@@ -100,9 +100,22 @@ Spring基于Java类的配置
 	2.无参构造方法，参数为零不能有@Autowired注解
 	3.其他构造方法
 	
+缓存：
+	@Cacheable注解可以用在方法或者类级别。内部应该是实现了一个ConcurrentHashMap，用来储存缓存。有三个参数，
+		value/cacheNames，是必须的，指明了缓存将被存到什么地方，相当于map的名字
+		key，就是map的key，默认使用被注解的方法的签名，当然你可以重写key，自定义key可以使用SpEL表达式，
+			如果是Java自带的类可以进行比较是否相同，如果是自定义的类则不能，可以改用类里面的属性，如#book.id，#root.args[0].id+#root.args[0].isbn
+		condition，条件也是SpELl表达式，满足条件的才会被缓存
+		
+		最后总结一下流程，当执行到一个被@Cacheable注解的方法时，Spring首先检查condition条件是否满足，如果不满足，执行方法，返回；
+		如果满足，在value所命名的缓存空间中查找使用key存储的对象，如果找到，将找到的结果返回，如果没有找到执行方法，
+		将方法的返回值以key-对象的方式存入value缓存中，然后方法返回。
 	
+	@CachePut这个注释可以确保方法被执行，同时方法的返回值也被记录到缓存中。参数同@Cacheable
+		一般用在update这类方法上，这类方法修改了数据，利用@CachePut将新数据写入缓存。这样@Cacheable注解的方法取到的缓存里就是新的数据了。
+		要求与@Cacheable有相同的CacheNames和key
 	
-	
+	@CacheEvict主要针对方法配置，能够根据一定的条件对缓存进行清空，参数与@Cacheable相同，一般用在delete这类方法上。
 	
 	
 	
