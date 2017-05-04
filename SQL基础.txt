@@ -41,10 +41,22 @@ select '站名3';
 修改、更新记录
 UPDATE Person SET FirstName = 'Fred' WHERE LastName = 'Wilson';
 
+删除记录
+DELETE FROM Person WHERE Id = 1;
+DELETE p1 FROM Person p1, Person p2 WHERE p1.Email = p2.Email AND p1.Id > p2.Id;
+
 给已建好的表加上唯一性约束
 alter table 'station' add unique('st_name');
 
 当not in 子查询有null值时，没有结果返回。可用not exists
+有两个简单例子，以说明 “exists”和“in”的效率问题
+1) select * from T1 where exists(select 1 from T2 whereT1.a=T2.a) ;
+   T1数据量小而T2数据量非常大时，T1<<T2 时，1)的查询效率高。
+   
+2) select * from T1 where T1.a in (select T2.a from T2) ;
+    T1数据量非常大而T2数据量小时，T1>>T2 时，2)的查询效率高。
+通过使用EXISTS，Oracle会首先检查主查询，然后运行子查询直到它找到第一个匹配项，这就节省了时间。Oracle在执行IN子查询时，系统先将主查询挂起，
+首先执行子查询，并将获得的结果列表存放在一个加了索引的临时表中，再执行主查询。这也就是使用EXISTS比使用IN通常查询速度快的原因
 
 在 SQL 中增加 HAVING 子句原因是，WHERE 关键字无法与合计函数一起使用。
 例如：

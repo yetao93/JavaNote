@@ -7,7 +7,7 @@
 	<script src="angular.min.js"></script>
 	<div ng-controller="MyCtrl">
 		<label>对象</label>
-		<select ng-options="option.codem as option.name for option in xzqys" ng-model="xzqyCode" ng-change="list()">
+		<select ng-options="option.codem as option.name for option in s.xzqys" ng-model="xzqyCode" ng-change="list()">
 			<option value=""></option><!-- value中不能有值 -->
 		</select>
 
@@ -20,7 +20,8 @@
 		var app = angular.module('fileUpload',[]);
 		app.controller('MyCtrl',['$scope',function($scope){
 			$scope.xzqyCode = 'c1';//默认显示一项
-			$scope.xzqys = [{"name":"n1","codem":"c1"},{"name":"n2","codem":"c2"},{"name":"n3","codem":"c3"},{"name":"n4","codem":"c4"}];
+			$scope.s = {'xzqys':[]}
+			$scope.s.xzqys = [{"name":"n1","codem":"c1"},{"name":"n2","codem":"c2"},{"name":"n3","codem":"c3"},{"name":"n4","codem":"c4"}];
 
 			$scope.names = ["Emil", "Tobias", "Linus"];
 

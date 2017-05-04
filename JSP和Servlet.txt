@@ -1,11 +1,12 @@
 JSP和Servlet本质是一样的，JSP最终必须被编译成Servlet才能运行。
 Servlet是一个特殊的java类，Tomcat会根据JSP页面生成对应的Servlet的Java文件和class文件
-在Servlet类里主要有三个方法：init()   初始化JSP/Servlet的方法
-							 destory()销毁JSP/Servlet之前的方法
-							 service()对用户请求生成响应的方法
-
-如果开发者自己写servlet，可以继承自HttpServlet，其中有service(),doGet(),doPost()方法，通常选择覆盖doGet(),doPost()来完成业务功能，
-HttpServlet继承自GenericServlet，其中有init(),destory(),抽象的service().
+在Servlet接口里主要有三个方法：init() 初始化JSP/Servlet的方法、destory() 销毁JSP/Servlet之前的方法
+							   service(ServletRequest req, ServletResponse res)对用户请求生成响应的方法
+							 
+抽象类GenericServlet实现了Servlet接口，基本都是空实现。
+如果开发者自己写servlet，可以继承自HttpServlet抽象类，它继承自GenericServlet，其中有重载的service(HttpServletRequest req, HttpServletResponse resp),
+doGet(),doPost()等方法，在service()中选择doGet或doPost之类的方法来操作。
+在自己写的servlet中通常选择覆盖doGet(),doPost()来完成业务功能
 
 JSP运行方式：当客户端向服务器发出请求时，被请求的JSP首先被Web应用服务器编译成Servlet并执行，然后将所产生的结果
 作为一个HTML文件传送给浏览器
