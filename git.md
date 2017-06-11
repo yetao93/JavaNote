@@ -193,7 +193,7 @@ $ git commit -m "remove test.txt"
 
 ### 远程交互详解
 
-![git工作流程图](C:\Laptop\info center\Import\yetao93\skye\git.jpg)
+![git工作流程图](md_pic\git.jpg)
 
 #### git clone
 
