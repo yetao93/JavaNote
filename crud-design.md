@@ -81,6 +81,8 @@
 ## restQuery（返回类型只会是List<Map\>）
 `public List restQuery(String queryName, Map<String, Object> params, Integer first, Integer limit)`
 
+**参数params不能为null**
+
 1. 先判断返回类型，返回类型从yaml中获取：一般是domain类，如果是map或非domain类，则需在hql语句中写好`new map(...)`或`new Object(...)`
 2. 处理hql语句，调用`org.hibernate.Session.createQuery(String hql, Class<T> resultType)`。如果是sql语句，则调用`org.hibernate.Session.createNativeQuery(String sqlString)`，转换为map后返回
 3. 注入参数，设置首项和最大项数，得到list，
@@ -89,7 +91,7 @@
 ## query（返回类型根据方法的参数`Class<R> resultType`和语法来定）
 `public <R> List<R> query(String queryName, Map<String, Object> params, Class<R> resultType, Integer first, Integer limit)`
 
-
+**参数params不能为null**
 
 若resultType为map，调用上面的restQuery()方法，返回的一定是List<Map\>
 
@@ -97,3 +99,35 @@
 
 语法为hql，返回的是List<domain\>，**直接给前端返回会导致延迟加载错误！**
 
+##YAML
+**fetches、resultType只对restQuery有用**
+
+	# --- 表示文档开头
+	---
+	  # 以下查询用 HQL 而不是 SQL 的语法
+	  grammer: HQL
+	  queries:
+	    # 定义第一个查询
+	    - name: findBuyer
+	      resultType: Customer
+	      fetches: [addresses]
+	      statement: 
+	        'select 
+	           c 
+	         from 
+	           Customer c, in (c.orders) o, in (o.items) i 
+	         where 
+	           i.product.name like :productName 
+	           #if($name)
+	             and c.name=:name 
+	           #end 
+	           and c.id=:uid'
+	      authoxResource: analysis
+	    # 定义第二个查询
+	    - name: findCustomerBean2
+	      resultType: test.cgs.dcdemo.model.ProductBuyer
+	      statement: 
+	        'select 
+	           new test.cgs.dcdemo.model.ProductBuyer(c.id, c.name) 
+	         from 
+	           com.cgs.dc12.sample.Customer c'
