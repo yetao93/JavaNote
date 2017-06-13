@@ -77,13 +77,11 @@
 即调用Hibernate session的delete方法，删除持久化对象，注意级联问题，很有可能删不掉
 
 # QUERY
-
+**参数params不能为null里面的value也不能为null**
 ## restQuery（返回类型只会是List<Map\>）
 `public List restQuery(String queryName, Map<String, Object> params, Integer first, Integer limit)`
 
-**参数params不能为null**
-
-1. 先判断返回类型，返回类型从yaml中获取：一般是domain类，如果是map或非domain类，则需在hql语句中写好`new map(...)`或`new Object(...)`
+1. 返回类型resultType从yaml中获取，进行判断：一般是domain类，如果是map或非domain类，则需在hql语句中写好`new map(...)`或`new Object(...)`
 2. 处理hql语句，调用`org.hibernate.Session.createQuery(String hql, Class<T> resultType)`。如果是sql语句，则调用`org.hibernate.Session.createNativeQuery(String sqlString)`，转换为map后返回
 3. 注入参数，设置首项和最大项数，得到list，
 4. 若返回类型为domain，根据fetches加载关联属性，将domain转换为map返回
@@ -91,16 +89,14 @@
 ## query（返回类型根据方法的参数`Class<R> resultType`和语法来定）
 `public <R> List<R> query(String queryName, Map<String, Object> params, Class<R> resultType, Integer first, Integer limit)`
 
-**参数params不能为null**
-
 若resultType为map，调用上面的restQuery()方法，返回的一定是List<Map\>
 
 若resultType为domain，继续该方法：语法为sql，返回的是List<Map\>。
 
 语法为hql，返回的是List<domain\>，**直接给前端返回会导致延迟加载错误！**
 
-##YAML
-**fetches、resultType只对restQuery有用**
+## YAML
+**fetches、resultType只对restQuery中的hql查询有用，但是调用restQuery时不管sql还是hql，都要在yaml中定义这两个属性，否则NPE**
 
 	# --- 表示文档开头
 	---
@@ -131,3 +127,33 @@
 	           new test.cgs.dcdemo.model.ProductBuyer(c.id, c.name) 
 	         from 
 	           com.cgs.dc12.sample.Customer c'
+
+### in的用法
+	- name: testIn
+      resultType: Customer
+      statement: '
+        select 
+          c 
+        from 
+          Customer c
+        where
+          c.id #qin($ids "IDS")
+          and c.name #qin($names "N")'
+
+params如果不传这些参数或者传的是空数组则查询结果为空
+
+### like的用法
+可以用#qlikeany来写参数数目不定的 like 表达式。例如：
+
+	---
+	    - name: testIn
+	      resultType: Customer
+	      statement: '
+	      select 
+	           c 
+	         from 
+	           Customer c
+	         where
+	             #qlikeany("c.name" $names)
+	      '
+其中 "c.name" 是字段名，$names 是数组形式传入的参数。
