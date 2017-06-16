@@ -113,7 +113,7 @@ HashMap实现了Map接口，允许放入null元素，除该类未实现同步外
 
 #####get()
 get(Object key)方法根据指定的key值返回对应的value，该方法调用了getEntry(Object key)得到相应的entry，然后返回entry.getValue()。因此getEntry()是算法的核心。
-算法思想是首先通过hash()函数得到对应bucket的下标，然后依次遍历冲突链表，通过key.equals(k)方法来判断是否是要找的那个entry。
+算法思想是首先通过hash()函数得到对应桶的下标，然后依次遍历冲突链表，通过key.equals(k)方法来判断是否是要找的那个entry。
 
 ##LinkedHashMap、LinkedHashSet
 LinkedHashMap实现了Map接口，即允许放入key为null的元素，也允许插入value为null的元素。从名字上可以看出该容器是linked list和HashMap的混合体，也就是说它同时满足HashMap和linked list的某些特性。可将LinkedHashMap看作采用linked list增强的HashMap。
