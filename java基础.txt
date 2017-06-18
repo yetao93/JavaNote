@@ -337,17 +337,18 @@ A：1、新建状态（New）：新创建了一个线程对象。
 	5、死亡状态（Dead）：线程执行完了或者因异常退出了run()方法，该线程结束生命周期。
 
 Q：Java等待/通知机制
-A：都是Object的方法，必须在同步代码中使用。
+A：都是Object的方法，必须在同步代码中使用（为了防止在进入wait过程中就调用了notify，导致一直阻塞，等待和通知这两个操作必须互斥）
 	是指一个线程A调用了对象O的wait()方法释放了锁并进入等待阻塞状态，另一个线程B调用了对象O的notify()或者notifyAll()方法，
 		线程A收到通知后从对象O的wait()方法返回，进而执行后续操作。
-		
+
 	典型用法：分为等待方（消费者）和通知方（生产者）
-		等待方遵循以下原则：1.获取对象的锁
+		等待方遵循以下原则：1.获取对象O的锁
 							2.循环判断条件是否满足，如果不满足，调用对象O的wait方法，会释放锁并进入等待阻塞，被通知后仍要检查条件。
 							3.条件满足则执行对应的逻辑
-		通知方遵循以下原则：1.获得对象的锁
+		通知方遵循以下原则：1.获得对象O的锁
 							2.改变条件，以满足等待方的需求
-							3.通知所有等待在对象O上的线程
+							3.通知一个或所有等待在对象O上的线程，在同步代码块执行完之后释放锁，被唤醒的线程将竞争对象O的锁
+	
 	
 Q：线程调度
 	线程优先级：每一个线程都有优先级，默认继承父线程的优先级，可通过setPriority方法设置。每当线程调度器有机会选择新线程时，
@@ -363,8 +364,8 @@ Q：线程调度
 		yield()只是使当前线程重新回到可执行状态，所以执行yield()的线程有可能在进入到可执行状态后马上又被执行。
 	
 		sleep和wait的区别有：
-			1，这两个方法来自不同的类分别是Thread和Object
-			2，最主要是sleep方法没有释放锁，而wait方法释放了锁，使得敏感词线程可以使用同步控制块或者方法。
+			1，sleep是Thread类的静态方法，不涉及线程同步的概念；wait是Object的方法，实现等待/通知机制
+			2，最主要是sleep方法没有释放锁，而wait方法释放了锁，使得其他线程可以使用同步控制块或者方法。
 			3，wait，notify和notifyAll只能在同步代码中（获得过锁）使用，而sleep可以在任何地方使用
 				synchronized(x){
 					x.notify()//或者x.wait()
@@ -439,7 +440,7 @@ A：我的理解
 	 五、本质是对一个对象的监视器monitor进行获取
 	 
 Q：volatile关键字
-A：volatile是轻量级的synchronized，它在多线程开发中保证了共享变量的一致性。	
+A：volatile是轻量级的synchronized，保证从主内存加载到线程工作内存的值是最新的
 		用volatile修饰后的变量不允许有不同于主内存区域的变量拷贝。任何线程中改变了它的值必须同步刷新回共享内存，所有其他线程立即获取到了相同的值
 		对于volatile修饰的变量，读取时JMM会把该线程对应的本地内存置为无效，然后从主内存读取。但是加载与修改变量的值和写入主内存等操作并不是原子性的，
 			所以即使用了volatile修饰变量，仍存在并发的问题。
@@ -450,10 +451,62 @@ A：volatile是轻量级的synchronized，它在多线程开发中保证了共�
 		自动把线程变量副本的值回写到对象在堆中变量。
 		
 Q：线程池技术
-A：//TODO
+A：ThreadPoolExecutor类是线程池的核心，继承自AbstractExecutorService，其实现了ExecutorService接口，其继承了Executor顶层接口。
+		先看其构造方法，有七个参数
+			corePoolSize：核心池的大小，在创建了线程池后，默认情况下，线程池中并没有任何线程，而是等待有任务到来才创建线程去执行任务，
+								   当线程池中的线程数目达到corePoolSize后，就会把到达的任务放到缓存队列当中。
+			maximumPoolSize：线程池最大线程数。
+			keepAliveTime：表示线程没有任务执行时最多保持多久时间再终止。默认情况下，只有当线程池中的线程数大于corePoolSize时，
+			                      keepAliveTime才会起作用，直到线程池中的线程数不大于corePoolSize
+			unit：参数keepAliveTime的时间单位，有7种取值，是在TimeUnit类中的7种静态属性，从天一直到纳秒
+			workQueue：阻塞队列，用来存储等待执行的任务。
+			                     一般使用LinkedBlockingQueue：基于链表的先进先出队列，如果创建时没有指定此队列大小，则默认为Integer.MAX_VALUE
+								      和synchronousQueue：这个队列比较特殊，它不会保存提交的任务，而是将直接新建一个线程来执行新来的任务。
+								 较少使用ArrayBlockingQueue：基于数组的先进先出队列，此队列创建时必须指定大小和PriorityBlockingQueue
+			threadFactory：线程工厂，主要用来创建线程
+			handler：表示当拒绝处理任务时的策略，有四种取值：
+			                    ThreadPoolExecutor.AbortPolicy 丢弃任务并抛出RejectedExecutionException异常、
+								ThreadPoolExecutor.DiscardPolicy：也是丢弃任务，但是不抛出异常。 
+								ThreadPoolExecutor.DiscardOldestPolicy：丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）
+								ThreadPoolExecutor.CallerRunsPolicy：由调用线程处理该任务
 
+		不过不推荐直接使用ThreadPoolExecutor，而是通过Executors的几个静态方法来创建线程池，如果它提供的不满足使用，可以自己创建
+
+		在ThreadPoolExecutor类中有几个非常重要的方法：
+			execute() 方法实际上是接口Executor中声明的方法，在ThreadPoolExecutor进行了具体的实现，
+							这个方法是ThreadPoolExecutor的核心方法，通过这个方法可以向线程池提交一个任务，交由线程池去执行。
+	  　　submit() 方法是在接口ExecutorService中声明的方法，在AbstractExecutorService就已经有了具体的实现，
+							在ThreadPoolExecutor中并没有对其进行重写，这个方法也是用来向线程池提交任务的，
+							但是它和execute()方法不同，它能够返回任务执行的结果，去看submit()方法的实现，
+							会发现它实际上还是调用的execute()方法，只不过它利用了Future来获取任务执行结果。
+			shutdown() 此时线程池不能够接受新的任务，它会等待所有任务执行完毕
+			shutdownNow() 线程池不能接受新的任务，并且会去尝试终止正在执行的任务
+			
+		重点是execute(Runnable)的执行步骤：
+			   如果当前线程数小于核心线程池容量，则开启一个新线程并将该任务作为其第一个任务。
+			   如果当前线程数不小于核心线程池容量，就将该任务放进等待队列中。
+			   如果队列满了，则开启一个新的非核心线程处理它，此时总线程数不能超过设定的最大值。
+			   如果开启非核心线程失败了，按照拒绝策略拒绝该任务。
+
+Q：Callable、Future和FutureTask
+A：创建线程的2种方式，一种是直接继承Thread，一种就是实现Runnable接口。这2种方式都有一个缺陷就是：在执行完任务之后无法获取执行结果。
+      如果需要获取执行结果，就必须通过共享变量或者使用线程通信的方式来达到效果，这样使用起来就比较麻烦。
+	  而自从Java 1.5开始，就提供了Callable和Future接口，通过它们可以在任务执行完毕之后得到任务执行结果。
+	  
+	  Callable是一个泛型接口，call()函数返回的类型就是传递进来的V类型。一般情况下是配合ExecutorService来使用的
+	  
+	  Future就是对于具体的Runnable或者Callable任务的执行结果进行取消、查询是否完成、获取结果，get()会阻塞直到任务返回结果。
+	  FutureTask实现了Runnable和Future接口，它既可以作为Runnable被线程执行，又可以作为Future得到Callable的返回值。
+			   
 Q：死锁的四个必要条件和如何处理死锁
-A：//TODO
+A：死锁是指两个或两个以上的进程在执行过程中，因争夺资源而造成的一种互相等待的现象，若无外力作用，它们都将无法推进下去。
+            这是一个严重的问题，因为死锁会让你的程序挂起无法完成任务，死锁的发生必须满足以下四个条件：
+				互斥条件：一个资源每次只能被一个进程使用。
+				请求与保持条件：一个进程因请求资源而阻塞时，对已获得的资源保持不放。
+				不剥夺条件：进程已获得的资源，在末使用完之前，不能强行剥夺。
+				循环等待条件：若干进程之间形成一种头尾相接的循环等待资源关系。
+
+	避免死锁最简单的方法就是阻止循环等待条件，将系统中所有的资源设置标志位、排序，规定所有的进程申请资源必须以一定的顺序（升序或降序）做操作来避免死锁。
 
 Q：线程同步的方法，sychronized和lock的区别
 A：//TODO
