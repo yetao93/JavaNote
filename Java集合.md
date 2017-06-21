@@ -21,23 +21,23 @@ ArrayList实现了List接口，是顺序容器，即元素存放的数据与放�
 #####add(E e)，addAll(Collection<? extends E> c)
 添加元素之前要进行剩余空间检查。如果添加之后的元素数量会大于数组的容量，则进行**自动扩容**。
 
-先扩充为原来容量的1.5倍，若还是小于元素数量，则就将容量扩充到和元素数量一样多。如果此时数组容量超过了Java数组的最大长度=Integer.MAXVALUE-8
+新容量newCapacity先扩充为原来容量oldCapacity的1.5倍，若还是小于元素数量minCapacity，则就将新容量扩充到和元素数量一样多。如果此时数组新容量超过了Java数组的最大长度=Integer.MAXVALUE-8
 
 > （Java数组长度，有两层限制，一是length必须是非负的int，理论最大值就是Integer.MAXVALUE = 2*31-1 = 2147483647。二是具体的JVM实现带来的限制。为什么不用long记录长度，因为会大大超出内存的容量。int的最大值会占用2G内存。减去8是因为JVM会保留一些头信息在数组中）
 
-再判断真正所需的容量是否超出数组的最大长度，如果超出就设置为Integer.MAXVALUE，没有就设置为数组的最大长度。然后将旧数组复制到新的数组中去，并将新的值添加到末尾。
+再判断元素数量minCapacity是否超出数组的最大长度，如果超出就设置为Integer.MAXVALUE，会抛弃超出部分，没有就设置为数组的最大长度。然后将旧数组复制到新的数组中去，并将新的值添加到末尾。
 
 **复制数组的方法：**`System.arraycopy(Object[] src, int srcPos, Object[] dest, int destPos, int length)`
 
 src:源数组，srcPos:要复制的内容在源数组的起始位置，dest:目标数组，destPos:复制过来的内容要粘贴到目标数组的起始位置，length:复制内容的长度。注意各个位置不要越界。
 
 #####add(int index, E e)，addAll(int index, Collection<? extends E> c)
-先移动部分元素，再完成插入操作。不能插到最后位置，应该用add(E e)
+先移动部分元素，再完成插入操作
 
 #####remove(int index)，remove(Object o)
 remove(Object o)删除第一个满足o.equals(elementData[index])的元素
 
-将删除点之后的元素向前移动一个位置，并将最后一个元素赋为null，是为了让GC起作用
+将删除点之后的元素向前移动一个位置，并将最后一个元素赋为null，是为了让GC起作用，删除之后没有把数组容量缩小。
 
 ##LinkedList
 
@@ -60,7 +60,7 @@ LinkedList同时实现了List接口和Deque接口，也就是说它既可以看�
     	}
 	}
 
-增删改其中的元素，要注意：检查是否越界，要操作的元素是否第一个或最后一个，理顺受影响的元素的前后引用
+增删改其中的元素，要注意：检查是否越界，要操作的元素是否第一个或最后一个，理顺受影响的元素的前后引用。没有容量限制，但其size属性是int类型的，应该最大值为Integer.MAX_VALUE
 
 ##ArrayDeque
 ###介绍
