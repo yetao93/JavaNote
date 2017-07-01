@@ -103,11 +103,11 @@ TreeMap实现了SortedMap接口，也就是说会按照key的大小顺序对Map�
 TreeMap底层通过红黑树（Red-Black tree）实现，也就意味着containsKey(), get(), put(), remove()都有着log(n)的时间复杂度。其具体算法实现参照了《算法导论》。
 
 ##HashMap、HashSet
-HashMap实现了Map接口，允许放入null元素，除该类未实现同步外，其余跟Hashtable大致相同，跟TreeMap不同，该容器不保证元素顺序，根据需要该容器可能会对元素重新哈希，元素的顺序也会被重新打散，因此不同时间迭代同一个HashMap的顺序可能会不同。容量必须是2的幂，最大容量2的30次方，负载因子默认0.75
+HashMap实现了Map接口，允许放入null元素，除该类未实现同步外，其余跟Hashtable大致相同，跟TreeMap不同，该容器不保证元素顺序，根据需要该容器可能会对key重新哈希，元素的顺序也会被重新打散，因此不同时间迭代同一个HashMap的顺序可能会不同。容量必须是2的幂，最大容量2的30次方，负载因子默认0.75
 
-对于HashMap有两个重要的参数：初始容量initialCapacity、负载因子loadFactor。容量表示哈希表中桶的数量，初始容量是创建的哈希表的大小。负载因子是哈希表在其容量自动增加之前可以达到多满的一种尺度，它衡量的是一个散列表的空间的使用程度
+对于HashMap有两个重要的参数：初始容量initialCapacity、负载因子loadFactor。初始容量是创建的哈希表的大小，哈希表是一个Node<K,V>类型的数组（图误），负载因子是哈希表在其容量自动增加之前可以达到多满的一种尺度，它衡量的是一个哈希表的空间的使用程度，负载因子大那么空间利用率高，但是对其操作的时间开销也大。
 
-根据对冲突的处理方式不同，哈希表有两种实现方式，一种开放地址方式（Open addressing），另一种是冲突链表方式（Separate chaining with linked lists）。Java HashMap采用的是冲突链表方式。
+根据对冲突的处理方式不同，哈希表有两种实现方式，一种开放地址方式（Open addressing），另一种是冲突链表方式（Separate chaining with linked lists）。Java HashMap采用的是冲突链表方式。如果key的哈希值相同，就用一个单向链表将它们维系起来
 
 ![](md_pic/HashMap.png)
 
@@ -115,7 +115,7 @@ HashMap实现了Map接口，允许放入null元素，除该类未实现同步外
 
 #####get()
 get(Object key)方法根据指定的key值返回对应的value，该方法调用了getEntry(Object key)得到相应的entry，然后返回entry.getValue()。因此getEntry()是算法的核心。
-算法思想是首先通过hash()函数得到对应桶的下标，然后依次遍历冲突链表，通过key.equals(k)方法来判断是否是要找的那个entry。
+算法思想是首先计算得到key哈希值找到其在哈希表的位置，然后依次遍历冲突链表，通过key.equals(k)方法来判断是否是要找的那个entry。
 
 ##LinkedHashMap、LinkedHashSet
 LinkedHashMap实现了Map接口，即允许放入key为null的元素，也允许插入value为null的元素。从名字上可以看出该容器是linked list和HashMap的混合体，也就是说它同时满足HashMap和linked list的某些特性。可将LinkedHashMap看作采用linked list增强的HashMap。

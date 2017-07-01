@@ -42,6 +42,9 @@ A：布尔型boolean与其他基本数据类型不可互相转换。
 		3、如果有一个操作数是float型，计算结果是float型；
 		4、如果有一个操作数是double型，计算结果是double型；
 		5、被fianl修饰的变量不会自动改变类型，当2个final修饰相操作时，结果会根据左边变量的类型而转化。
+	
+	Integer i = 100在编译时会转换成Integer i = Integer.valueOf(100);
+	这个方法缓存了-128到127的值，所以如果值相同返回的是同一个对象。
 
 Q:基本数据类型的默认值？
 A:若基本数据类型作为类成员变量的时候，即使没有进行初始化。java也会给定默认的初始值。数值为0，布尔型为false
@@ -61,7 +64,7 @@ A：==是操作符，equals()是Object的方法，其内部就是用的==判断�
 	总结：==比较的是栈中的内容是否相同，equals()方法比较的是堆中的内容是否相同，比较前先分清堆和栈中的内容是什么！
    ||（条件或）和 &&（条件与）具有 短路规则
    
-Q：关于String字符串
+Q：关于String字符串以及StringBuffer和StringBuilder
 A：String是不可变字符串，有一个优点：编译器可以让字符串共享。有一个字符串常量池。在编译期确定，存入.class文件
    通过String a = "abc";创建的都是字符串常量，在编译期内确定，只要内容相同，地址也相同。String b = "a" + "bc";也是字符串常量
 		而 b+="abc" 或substring等操作不能在编译期确定，得到的结果不是字符串常量，地址不同。
@@ -71,6 +74,8 @@ A：String是不可变字符串，有一个优点：编译器可以让字符串�
    空串""是一个Java对象，有长度（0），有内容（空），判断 str.length()==0 或 str.equals("")
    Null串中放了一个特殊的值Null，表示目前没有任何对象与该变量关联，判断 str == null
 
+   StringBuffer是线程安全的，其内部必要的方法都加了synchronized
+   
 Q:关于switch语句
 A:对表达式计算，再与每个case子句中的常量值比较，匹配成功则执行该case子句后的语句，直到遇到break为止。
   要注意表达式必须是符合byte、char、short、int类型的表达式，不能使用浮点型或long类型或字符串（新版java支持字符串）
@@ -333,17 +338,9 @@ A：Collection接口是集合接口树的根。java提供了一个操作Set、Li
 	Map接口键值对形式：
 		Map是用来保存具有映射关系的数据，是一个无序不可重复的集合，相当于“关联数组”；Set和Map的关系十分密切，
 		java源码就是先实现了HashMap、TreeMap等集合，然后通过包装一个所有的value都为null的Map集合实现了Set集合类，
-		所以呢在说Map的时候key值几乎和我们说的set一模一样，所以相似的我就不多提了
+		所以呢在说Map的时候key值几乎和我们说的set一模一样，所以相似的我就不多提了。详见Java集合.md
 	
-		Hashtable与HashMap，光看名字就知道Hashtable是一个很古老的实现类，因为他的名字都没有符合驼峰命名规范，
-		而HashMap就是它的替代类，跟ArraySet和Vector一样，HashMap是线程不安全的而Hashtable是线程安全的，但不建议用Hashtable，
-		如果需要同步可以用Collection工具类来进行包装。它们另个一个区别是HashMap里面的key和value值都可以为null，而Hashtable不可以
-
-		LinkedHashMap和LinkedHashSet一样，是用了一个双链表来维护key-value队伍次序，所以它可以实现有序插入，但是性能必然降低了。
-		
-		TreeMap实现了SortedMap接口，当然功能也和TreeSet相似，可以自然排序也可以定制排序（排序的对象是Key值）
-
-	集合中线程安全的类有：vector，hashtable , stack，enumeration，除此之外均是非线程安全的类与接口
+	集合中线程安全的类有：Vector，Hashtable , Stack，Enumeration，除此之外均是非线程安全的类与接口
 	
 Q：Java集合类框架的基本接口有哪些？
 Java集合类提供了一套设计良好的支持对一组对象进行操作的接口和类。Java集合类里面最基本的接口有：
@@ -364,15 +361,15 @@ Iterator可用来遍历Set和List集合，但是ListIterator只能用来遍历Li
 Iterator对集合只能是前向遍历，ListIterator既可以前向也可以后向。
 ListIterator实现了Iterator接口，并包含其他的功能，比如：增加元素，替换元素，获取前一个和后一个元素的索引，等等。
 
-Q：HashMap的底层源码，原理？如何实现一个HashMap？自定义类型可以作为Key吗？扩容因子过大过小的缺点，扩容过程
-A：// TODO
 
 Q：HashMap和Hashtable有什么区别？
-HashMap和Hashtable都实现了Map接口，因此很多特性非常相似。但是，他们有以下不同点：
+HashMap和Hashtable都实现了Map接口，几乎可以等价。但是，他们有以下不同点：
+主要的区别有：线程安全性，以及速度。
+Hashtable是线程安全的，它里面的方法都用了synchronized修饰，速度慢，而HashMap不是
+另一个区别是HashMap的迭代器是fail-fast迭代器，而Hashtable的enumerator（列举）迭代器不是fail-fast的。
 HashMap允许键和值是null，而Hashtable不允许键或者值是null。
-Hashtable是同步的，而HashMap不是。因此，HashMap更适合于单线程环境，而Hashtable适合于多线程环境。
-HashMap提供了可供应用迭代的键的集合，因此，HashMap是快速失败的。另一方面，Hashtable提供了对键的列举(Enumeration)。
-一般认为Hashtable是一个遗留的类。
+如果要将HashMap变成线程安全的，推荐使用ConcurrentHashMap，
+也可以使用Collections.synchronizedMap(Map)方法，它是给每个操作加synchronized
 
 
 Q：数组(Array)和列表(ArrayList)有什么区别？什么时候应该使用Array而不是ArrayList？
