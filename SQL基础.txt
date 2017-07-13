@@ -40,6 +40,7 @@ select '站名3';
 
 修改、更新记录
 UPDATE Person SET FirstName = 'Fred' WHERE LastName = 'Wilson';
+update a set a = b.a, b=b.b, c=b.c from t a,t b where (a.条件1) and (b.条件2)
 
 删除记录
 DELETE FROM Person WHERE Id = 1;
