@@ -51,10 +51,10 @@ alter table 'station' add unique('st_name');
 
 当not in 子查询有null值时，没有结果返回。可用not exists
 有两个简单例子，以说明 “exists”和“in”的效率问题
-1) select * from T1 where exists(select 1 from T2 whereT1.a=T2.a) ;
+1) select * from T1 where exists(select 1 from T2 where T1.a=T2.a);
    T1数据量小而T2数据量非常大时，T1<<T2 时，1)的查询效率高。
    
-2) select * from T1 where T1.a in (select T2.a from T2) ;
+2) select * from T1 where T1.a in (select T2.a from T2);
     T1数据量非常大而T2数据量小时，T1>>T2 时，2)的查询效率高。
 通过使用EXISTS，Oracle会首先检查主查询，然后运行子查询直到它找到第一个匹配项，这就节省了时间。Oracle在执行IN子查询时，系统先将主查询挂起，
 首先执行子查询，并将获得的结果列表存放在一个加了索引的临时表中，再执行主查询。这也就是使用EXISTS比使用IN通常查询速度快的原因
@@ -291,6 +291,8 @@ the Users_Id at the Users table. Status is an ENUM type of (‘completed’, ‘
 | 10 |     4     |    13     |    12   | cancelled_by_driver|2013-10-03|
 +----+-----------+-----------+---------+--------------------+----------+
 
+5.每门课前两名
+
 Answer:
 1.1 select t1.Score, sum(1) as Rank from Scores t1, (select distinct score from Scores) as t2 where t1.score<=t2.score group by t1.id order by rank;
 1.2 select Score, (select count(distinct Score) from Scores as t2 where t2.Score >= t1.Score ) as Rank from Scores as t1 order by rank;
@@ -304,3 +306,4 @@ Answer:
 
 4.1 SELECT Request_at AS DAY, ROUND(COUNT(IF(Status != 'completed', TRUE, NULL)) / COUNT(*), 2) AS 'Cancellation Rate' FROM Trips WHERE (Request_at BETWEEN '2013-10-01' AND '2013-10-03')  GROUP BY Request_at;
 
+5.1 SELECT * FROM score A WHERE ( SELECT COUNT(*) FROM score B WHERE B.cno = A.cno AND B.degree >= A.degree ) <= 2 ORDER BY A.cno, A.degree DESC
