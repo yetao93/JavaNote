@@ -1,0 +1,45 @@
+DispatcherServlet extends FrameworkServlet extends HttpServletBean extends HttpServlet
+
+
+HttpServlet.service(ServletRequest req, ServletResponse res)
+	将参数强制转换后，调用
+
+FrameworkServlet.service(HttpServletRequest request, HttpServletResponse response)
+	判断HttpMethod是否为null，是否为PATCH，都为否后，调用父类方法
+
+HttpServlet.service(HttpServletRequest req, HttpServletResponse resp)
+	根据请求方法调用对应的处理方法，如doGet(req, resp)
+
+FrameworkServlet.doGet(HttpServletRequest request, HttpServletResponse response)
+FrameworkServlet.processRequest(HttpServletRequest request, HttpServletResponse response)
+DispatcherServlet.doService(HttpServletRequest request, HttpServletResponse response)
+	经过一些对attribute的操作后，调用
+
+DispatcherServlet.doDispatch(HttpServletRequest request, HttpServletResponse response)
+	1.遍历handlerMappings找出能处理该request的handler，构造执行器链HandlerExecutionChain，执行器链中包含handler和相关拦截器，
+	  同时包含有跨域的解决方案。再遍历handlerAdapters，找出能support支持这个handler的适配器
+	  
+		静态资源：以SimpleUrlHandlerMapping.urlMap的key匹配到对应的URL，并根据value.locations找到对应的文件位置，默认是/static/下
+		
+		controller：从RequestMappingHandlerMapping.mappingRegistry.urlLookup中根据URL找到对应的handler，
+
+	2.由HandlerAdapter调用handle(HttpServletRequest request, HttpServletResponse response, Object handler)方法，绑定参数，真正进行处理，
+	  在该方法的前后调用拦截器的方法
+
+		最里面调用是(org.springframework.web.method.support) InvocableHandlerMethod.invokeForRequest:133，调用了Controller中的方法得到返回值
+	
+			如果返回json，通过RequestResponseBodyMethodProcessor.handleReturnValue方法输出返回值
+	
+	3.如果返回的是视图，走到processDispatchResult，mv != null，进入render，进入到resolveViewName，寻找视图解析器，将viewName转化为View
+			
+		调用View的实现类的render方法，将模型绑定到视图上，调用TemplateEngine.process中根据configuration.templatesResolves获得指定的视图，
+		默认路径为prefix=classpath:/templates/，suffix=.html，然后调用response.write方法输出
+
+
+handlerMappings：
+	
+handlerAdapters：
+	RequestMappingHandlerAdapter（supports方法判断handler是不是HandlerMethod类型），适配@Controller的handler
+	HttpRequestHandlerAdapter（HttpRequestHandler），适配静态资源请求
+	SimpleControllerHandlerAdapter（Controller）
+			

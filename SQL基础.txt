@@ -59,6 +59,9 @@ alter table 'station' add unique('st_name');
 通过使用EXISTS，Oracle会首先检查主查询，然后运行子查询直到它找到第一个匹配项，这就节省了时间。Oracle在执行IN子查询时，系统先将主查询挂起，
 首先执行子查询，并将获得的结果列表存放在一个加了索引的临时表中，再执行主查询。这也就是使用EXISTS比使用IN通常查询速度快的原因
 
+删除重复的记录，保留一条，最高效的删除重复记录方法 ( 因为使用了ROWID)例子： 
+DELETE FROM EMP E WHERE E.ROWID > (SELECT MIN(X.ROWID) FROM EMP X WHERE X.EMP_NO = E.EMP_NO);
+
 在 SQL 中增加 HAVING 子句原因是，WHERE 关键字无法与合计函数一起使用。
 例如：
 SELECT Customer,SUM(OrderPrice) FROM Orders
