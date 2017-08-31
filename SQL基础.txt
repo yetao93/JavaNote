@@ -33,10 +33,10 @@ create table USER
    );
    
 用一条SQL语句增加多条记录
-insert into station(st_name)
-select '站名1' union
-select '站名2' union
-select '站名3';
+insert into station(st_name) values('q'),('w'),('e');
+
+将其他表的数据添加的本表
+insert into a (id,name,create) select id,name,create from b;
 
 修改、更新记录
 UPDATE Person SET FirstName = 'Fred' WHERE LastName = 'Wilson';
