@@ -1,0 +1,79 @@
+servlet容器有个3个基本任务，对于每个请求都会完成以下3个操作：
+		1.创建一个ServletRequest对象，用请求信息填充它
+		2.创建一个ServletResponse对象，用来向Web客户端发送响应
+		3.调用servlet的service()方法，将request对象和response对象作为参数传入
+	
+基于上述三个任务，可以将Tomcat划分成2个模块：连接器connector和容器container
+		连接器的作用：负责将一个请求与容器相关联，它的工作包括为解析接受到的每个HTTP请求并创建request对象和response对象，然后交给容器
+		容器的作用：   从连接器中接收到这两个对象，调用响应的Servlet的service方法
+		
+HTTP请求和响应的三部分：请求行-请求头-请求体；响应行-响应头-响应体。其实就是空格和回车隔开的字符串
+servlet容器实际上是基于Socket与客户端通信的，使用InputStream和OutputStream接收请求和输出响应，可以写一个简单的demo了，在useless.tomcat.ex01
+
+处理servlet请求和处理静态资源请求：
+		对于servlet请求，就加载实例化该servlet（实现了Servlet接口），调用其service()方法将request和response作为参数传入处理
+		对于静态资源请求，可以通过 new  File(...)获得该资源，然后通过response的输出流输出
+
+什么是cookie？
+		cookie是浏览器作为HTTP请求头的一部分发送的，这个请求头的名称是cookie，其值是一些键值对，如cookie:name=yett;pwd=123;
+
+tomcat的默认连接器
+
+servlet容器，有四种：Engine表示整个Catalina servlet容器、Host表示含有一个或多个Context容器的虚拟主机、Context表示一个web应用、Wrapper表示一个独立的servlet
+		1.servlet容器必须实现org.apache.catalina.Container接口，需要将容器的实例作为参数传给连接器
+	    2.以上四种容器都有对应的接口，这些接口继承自Container
+
+		在连接器调用了servlet容器的invoke()方法之后：
+			   管道与阀：管道包含了该servlet容器将要调用的任务，一个阀表示一个具体的执行任务。有一个基础阀，最后执行。
+			   
+				一个servlet容器可以有一条管道，调用了容器的invoke()方法后，容器将处理工作交给管道完成，管道依次调用其中的阀开始处理
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
