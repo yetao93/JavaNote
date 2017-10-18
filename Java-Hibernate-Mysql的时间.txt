@@ -1,0 +1,26 @@
+Java：
+    主要有两个表示时间的类和sql包下的三个Date的子类：
+	    括号中是经过Hibernate映射的Mysql数据库中的类型，貌似Hibernate已经不在数据库中创建timestamp类型了
+	
+	java.util.Date，年月日时分秒     (datetime)         
+	java.util.Calendar，年月日时分秒 (datetime)
+	java.sql.Timestamp，年月日时分秒 (datetime)
+	java.sql.Date，年月日			 (date)
+	java.sql.Time，时分秒			 (time)
+	
+	Calendar和Timestamp和Date三者基本相同，java.sql.Date、java.sql.Time格式不同
+
+Hibernate：	
+	@Temporal注解只能用在java.util.Date和java.util.Calendar上，其有三个属性，作用是将Date或Calendar转换为sql包下的那三个时间类，用处不大
+	
+	@CreationTimestamp注解可以用在所有五个时间类上，当entity第一次保存时，将属性设置为当前JVM时间
+	
+	@UpdateTimestamp注解可以用在所有五个时间类上，每次entity更新的时候，将属性设置为当前JVM时间
+	
+Mysql：
+	datetime 与 timestamp
+	相同：显示相同，都是年月日时分秒
+	不同：范围，datetime支持的范围为'1000-01-01 00:00:00'到'9999-12-31 23:59:59'
+				timestamp不能早于1970或晚于2037
+		  储存，datetime 8个字节，以保存时的格式储存，与时区无关
+				timestamp 4个字节，以UTC格式保存，毫秒值，显示时根据时区转换
