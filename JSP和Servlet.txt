@@ -5,7 +5,7 @@ Servlet是一个特殊的java类，Tomcat会根据JSP页面生成对应的Servle
 							 
 抽象类GenericServlet实现了Servlet接口，基本都是空实现或抽象方法
 如果开发者自己写servlet，可以继承自HttpServlet抽象类，它继承自GenericServlet，
-其中有重写的service(ServletRequest req, ServletResponse res)，指向重载的service(HttpServletRequest req, HttpServletResponse resp)方法
+其中有重写的service(ServletRequest req, ServletResponse res)，调用重载的service(HttpServletRequest req, HttpServletResponse resp)方法
 还有新增的doGet(),doPost()等方法，在service()中选择doGet或doPost之类的方法来操作。
 在自己写的servlet中通常选择覆盖doGet(),doPost()来完成业务功能
 

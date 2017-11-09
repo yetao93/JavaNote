@@ -25,4 +25,4 @@ Mysql：
 		  储存，datetime 8个字节，以保存时的格式储存，与时区无关
 				timestamp 4个字节，以UTC格式保存，毫秒值，显示时根据时区转换
 	
-	通过jdbc查出来的datetime类型对应Java的java.sql.Timestamp
+	通过jdbc查出来的datetime类型对应Java的java.sql.Timestamp，可以方便向上转型到Date
