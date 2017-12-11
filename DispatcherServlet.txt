@@ -22,6 +22,8 @@ DispatcherServlet.doDispatch(HttpServletRequest request, HttpServletResponse res
 		静态资源：以SimpleUrlHandlerMapping.urlMap的key匹配到对应的URL，并根据value.locations找到对应的文件位置，默认是/static/下
 		
 		controller：从RequestMappingHandlerMapping.mappingRegistry.urlLookup中根据URL找到对应的handler，
+		
+		zuul路由：从ZuulHandlerMapping的父类属性handlerMap查找对应请求url
 
 	2.由HandlerAdapter调用handle(HttpServletRequest request, HttpServletResponse response, Object handler)方法，绑定参数，真正进行处理，
 	  在该方法的前后调用拦截器的方法
