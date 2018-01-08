@@ -1,0 +1,17 @@
+查看端口占用  	netstat -apn|grep [port]
+查看进程	  	ps -ef | grep [name]
+杀死进程	  	kill -9 [PID]
+抓包指定端口	tcpdump -i [eth0] -nn 'port [port]'
+
+
+创建文件        vi [fileName]   :wq
+上传文件		rz
+清空文件内容	使用gg调整光标到首行，然后使用dG命令即可
+
+
+
+
+
+nohup java -Xms32m -Xmx128m -Dspring.profiles.active=dev  -jar apigateway-1.0.0-SNAPSHOT.jar &> /usr/local/timevale/server/logs/apigateway.log &
+
+java -Dspring.profiles.active=dev -jar apigateway-1.0.0-SNAPSHOT.jar > /usr/local/timevale/server/logs/apigateway.log 2>&1 &

@@ -47,11 +47,21 @@ ZuulRunner直接将执行逻辑交由FilterProcessor处理。 FilterProcessor也
 
 
 ## ZuulController
-先由Spring MVC的`DispatchServlet.doDispatch`接收处理请求
+其中再交给ZuulServlet处理，其中依次经过各级filter过滤
 
-在getHandler时，去ZuulHandlerMapping中查找是否有对应的路由，其父类的handlerMap属性储存了所有路由信息
+## ZuulHandlerMapping
+其方法lookupHandler，先判断该请求是否忽略，handlerMapping是否dirty，是的话重新注册处理器。
+
+重新注册处理器是从CompositeRouteLocator.getRoutes()获取每个加载器的路由信息List\<Route>
+
+遍历每个Route，将fullpath(prefix+path)作为key，ZuulController作为value，放入handlerMapping中
+
+
+先由Spring MVC的`DispatchServlet.doDispatch`接收请求
+
+寻找该请求对应的处理器，其中包括在ZuulHandlerMapping中找，其父类的handlerMap属性储存了所有路由信息
 		
-查找到路由的，则交给ZuulController处理，再交给ZuulServlet处理，其中依次经过各级filter过滤
+查找到路由的，注册到SpringMVC的DispatcherServlet中，有请求的来时查找handler
 
 ## zuul自带的几个filter
 @EnableZuulProxy默认加载的filter有： pre类型的filter5个，route的3个，post的1个，error的1个，共10个filter
@@ -129,7 +139,41 @@ ZuulRunner直接将执行逻辑交由FilterProcessor处理。 FilterProcessor也
 
 功能说明： 
 
-
 ## 一些细节
 1. FilterProcessor执行每一个注册的ZuulFilter，将执行状态记录在ctx中，key是executedFilters
 `ServletDetectionFilter[SUCCESS][1ms], Servlet30WrapperFilter[SUCCESS][1ms], PreDecorationFilter[SUCCESS][1ms], RateLimitFilter[SUCCESS][4ms], SimpleHostRoutingFilter[SUCCESS][45ms], ResponseFilter[SUCCESS][0ms]`
+
+## RouteLocator 路由信息加载
+在启动类上加了注解@EnableZuulProxy，就使用了ZuulProxyAutoConfiguration，它是ZuulServerAutoConfiguration的子类。
+
+注册了一个默认路由加载器**DiscoveryClientRouteLocator**，它是SimpleRouteLocator的子类，会加载配置文件里的路由，实现了RefreshableRouteLocator接口。
+
+注册了一个包含所有RouteLocator的**CompositeRouteLocator**，其实现了RefreshableRouteLocator接口。带有@Primary。其作用是整合了所有RouteLocator，并注入到需要使用路由的地方，统一操作所有RouteLocator
+
+注册了**ZuulHandlerMapping**，将routeLocator（CompositeRouteLocator）和ZuulController作为参数传入。主要方法是lookupHandler
+
+注册了一个监听器，**监听刷新事件**和心跳事件。如果有发布的刷新事件，就将ZuulHandlerMapping设置为dirty，并调用其中的routeLocator（CompositeRouteLocator）的refresh()方法。
+
+
+## Route
+
+- String id 
+就是id
+
+- String path
+后台服务的接口路径
+
+- String prefix
+前缀，一般都会被忽略（prefixStripped = true），比如/first/**，接收到的请求是/first/bigJson，那么/first就是prefix前缀，/bigJson是path接口路径
+
+- String fullPath = prefix + path
+完整路径，也就是客户端向网关的请求URI，用作ZuulHandlerMapping中的key，判断请求是否交由ZuulController处理
+
+- String location
+后台服务的接口位置，location + path就是转发的最终目标
+
+- Boolean retryable
+- Set<String> sensitiveHeaders = new LinkedHashSet<>()
+- boolean customSensitiveHeaders
+- boolean prefixStripped = true
+是否忽略前缀prefix
