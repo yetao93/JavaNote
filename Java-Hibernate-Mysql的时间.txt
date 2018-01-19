@@ -23,6 +23,6 @@ Mysql：
 	不同：范围，datetime支持的范围为'1000-01-01 00:00:00'到'9999-12-31 23:59:59'
 				timestamp不能早于1970或晚于2037
 		  储存，datetime 8个字节，以保存时的格式储存，与时区无关
-				timestamp 4个字节，以UTC格式保存，毫秒值，显示时根据时区转换
+				timestamp 4个字节，以UTC格式保存，秒值，显示时根据时区转换
 	
 	通过jdbc查出来的datetime类型对应Java的java.sql.Timestamp，可以方便向上转型到Date
