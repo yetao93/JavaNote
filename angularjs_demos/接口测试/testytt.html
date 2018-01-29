@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+<title>接口测试</title>
+<meta charset="utf-8">
+<style>
+pre {
+	outline: 1px solid #ccc;
+	padding: 5px;
+	margin: 5px;
+}
+
+.string {
+	color: green;
+}
+
+.number {
+	color: darkorange;
+}
+
+.boolean {
+	color: blue;
+}
+
+.null {
+	color: magenta;
+}
+
+.key {
+	color: red;
+}
+</style>
+</head>
+<body>
+	<div ng-controller="MyCtrl">
+		<button ng-click="get(getUrl)">GET</button>
+		<input type="text" ng-model="getUrl" style="width: 30%;"></input><br />
+		<button ng-click="post(postUrl)">POST</button>
+		<input type="text" ng-model="postUrl" style="width: 30%;"></input><br />
+		<button ng-click="del(delUrl)">DELETE</button>
+		<input type="text" ng-model="delUrl" style="width: 30%;"></input><br />
+		<textarea rows="10" cols="60" ng-model="body"></textarea><span style="color:red;">耗时：{{timeout}}ms</span>
+		<br />
+		<pre id="result"></pre><br/>
+	</div>
+	
+	<script src="js/angular.min.js"></script>
+	<script src="script/MyController.js"></script>
+</body>
+</html>
