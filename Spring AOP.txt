@@ -1,12 +1,14 @@
-AOP(Aspect-Oriented Programming)，面向切面编程，它与 OOP( Object-Oriented Programming, 面向对象编程) 相辅相成，提供了与 OOP 不同的抽象软件结构的视角.
-		在 OOP 中, 我们以类(class)作为我们的基本单元, 而 AOP 中的基本单元是 aspect(切面)
+AOP(Aspect-Oriented Programming)，面向切面编程，它与 OOP( Object-Oriented Programming, 面向对象编程) 相辅相成，
+	提供了与 OOP 不同的抽象软件结构的视角。在 OOP 中, 我们以类(class)作为我们的基本单元, 而 AOP 中的基本单元是 aspect(切面)
 
 术语：
 join point(连接点)，在Spring AOP中join point就是各个方法
-point cut (切点)，一种规则，在Spring AOP中所有方法可以认为是join point，但不是所有方法到需要织入advice，所以point cut的作用就是提供一组规则（表达式或注解）来匹配join point
+point cut (切点)，一种规则，在Spring AOP中所有方法可以认为是join point，但不是所有方法到需要织入advice，
+						所以point cut的作用就是提供一组规则（表达式或注解）来匹配join point
 advice     (增强)，一段代码，织入到满足point cut规则的 join point上
 aspect     (切面)，由point cut和 advice 组成, 它既包含了横切逻辑的定义, 也包括了连接点的定义。使用 @Aspect 注解的类就是切面
 weaving  (织入)，将 aspect 和目标对象连接起来, 并创建 adviced object 的过程.
 
-Spring AOP 默认使用标准的 JDK 动态代理(dynamic proxy)技术来实现 AOP 代理, 通过它, 我们可以为任意的接口实现代理.如果需要为一个类实现代理, 那么可以使用 CGLIB 代理.
+Spring AOP 默认使用标准的 JDK 动态代理(dynamic proxy)技术来实现 AOP 代理, 通过它, 我们可以为任意的接口实现代理.
+	如果需要为一个类实现代理, 那么可以使用 CGLIB 代理.
 
