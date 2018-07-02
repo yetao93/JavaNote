@@ -1,3 +1,5 @@
+/usr/local/timevale/
+
 查看端口占用  	netstat -apn|grep [port]
 查看进程	  	ps -ef | grep [name]
 杀死进程	  	kill -9 [PID]
@@ -9,7 +11,7 @@
 下载文件		sz
 清空文件内容	使用gg调整光标到首行，然后使用dG命令即可
 
-
+提升权限		sudo su -
 
 
 
