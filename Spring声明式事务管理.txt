@@ -9,6 +9,7 @@ Spring事务回滚规则：
 		Spring 建议不要在接口或者接口方法上使用该注解，因为这只有在使用基于接口的代理时它才会生效。
 		只能被应用到 public 方法上，这是由 Spring AOP 的本质决定的。如果你在private、default、 protected方法上使用 @Transactional 注解，这将被忽略，也不会抛出任何异常。
 		默认情况下，只有来自外部的方法调用才会被AOP代理捕获，也就是，类内部方法调用本类内部的其他方法并不会引起事务行为，即使被调用方法使用@Transactional注解进行修饰。
+			是因为spring采用动态代理机制来实现事务控制，而动态代理最终都是要调用原始对象的，而原始对象在去调用方法时，是不会再触发代理了！
 		@Transactional对从父类继承来的public方法不起作用，会报错Could not obtain transaction-synchronized Session for current thread
 
 事务只读属性 readyOnly

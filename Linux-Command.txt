@@ -3,7 +3,7 @@
 查看端口占用  	netstat -apn|grep [port]
 查看进程	  	ps -ef | grep [name]
 杀死进程	  	kill -9 [PID]
-抓包指定端口	tcpdump -i [eth0] -nn 'port [port]'
+抓包指定端口	tcpdump tcp -i eth1 -t -s 0 -c 100 port 80 -w 2018-07-20tcp80.pcap
 
 
 创建文件        vi [fileName]   :wq
@@ -15,6 +15,25 @@
 
 
 
-nohup java -Xms32m -Xmx512m -Dspring.profiles.active=dev  -jar apigateway-1.0.0-SNAPSHOT.jar &> /usr/local/timevale/server/logs/apigateway.log &
-
-java -Dspring.profiles.active=dev -jar apigateway-1.0.0-SNAPSHOT.jar > /usr/local/timevale/server/logs/apigateway.log 2>&1 &
+{
+	"input": {
+		"globalSysCredentials": {
+			"type": "CRED_PSN_CH_IDCARD",
+			"value": "331081111111111113"
+		},
+		"base": {
+			"type": "PERSON",
+			"projectApp": {
+				"productKey": "PRODUCT_TECH",
+				"projectId": "1111563740"
+			}
+		},
+		"idcards": {
+			"email": {
+				"detail": {
+					"value": "3@test.cn"
+				}
+			}
+		}
+	}
+}
