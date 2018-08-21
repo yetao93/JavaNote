@@ -1,14 +1,18 @@
-/usr/local/timevale/
-
 查看端口占用  	netstat -apn|grep [port]
-查看进程	  	ps -ef | grep [name]
-杀死进程	  	kill -9 [PID]
+查看进程	ps -ef | grep [name]
+杀死进程	kill -9 [PID]
 抓包指定端口	tcpdump tcp -i eth1 -t -s 0 -c 100 port 80 -w 2018-07-20tcp80.pcap
 
 
 创建文件        vim [fileName]   :wq
 上传文件		rz
 下载文件		sz
-清空文件内容	使用gg调整光标到首行，然后使用dG命令即可
+清空文件内容    使用gg调整光标到首行，然后使用dG命令即可
+
 
 提升权限		sudo su -
+
+修改文件拥有者   chown -R 用户名.组名 file
+
+修改文件权限     chmod -R 777 file  (r=4,w=2,x=1) (文件拥有者、群组、其他)
+
