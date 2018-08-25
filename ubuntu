@@ -5,7 +5,6 @@ install
   git:    sudo apt-get install git
   vim:    sudo apt-get install vim
   zsh:    sudo apt-get install zsh
-  Gdebi:  deb安装包管理 sudo apt-get install gdebi
   idea:   官网下载压缩包，再解压缩 #sudo tar -zxvf ideaIU-2016.3.3-no-jdk.tar.gz -C /idea，
           修改hosts, 添加0.0.0.0 account.jetbrains.com
           进入bin目录 #./idea.sh 启动
@@ -15,8 +14,12 @@ install
                          #indicator-sysmonitor &
   
   wps:    官网下载deb,安装字体https://pan.baidu.com/s/1eS6xIzo，解压后放到/usr/share/fonts下
-  字体： 下载各种字体后，在“优化”中设置，其中等宽项是终端的字体
-
+  字体：  下载各种字体后，在“优化”中设置，其中等宽项是终端的字体
+  docker: "http://www.runoob.com/docker/ubuntu-docker-install.html"
+          权限问题 #sudo groupadd docker 
+                   #sudo gpasswd -a ${USER} docker 
+                   #sudo service docker restart                 
+                   #newgrp - docker
 
 warn
   Set document metadata failed: 不支持设置属性 metadata::gedit-spell-language
