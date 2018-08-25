@@ -15,11 +15,7 @@ install
   
   wps:    官网下载deb,安装字体https://pan.baidu.com/s/1eS6xIzo，解压后放到/usr/share/fonts下
   字体：  下载各种字体后，在“优化”中设置，其中等宽项是终端的字体
-  docker: "http://www.runoob.com/docker/ubuntu-docker-install.html"
-          权限问题 #sudo groupadd docker 
-                   #sudo gpasswd -a ${USER} docker 
-                   #sudo service docker restart                 
-                   #newgrp - docker
+  docker: "https://yeasy.gitbooks.io/docker_practice/content/install/ubuntu.html"  镜像仓库"https://hub.docker.com/"
 
 warn
   Set document metadata failed: 不支持设置属性 metadata::gedit-spell-language
