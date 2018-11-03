@@ -210,12 +210,12 @@ A：在什么情况下使用线程池  1.单个任务处理的时间比较短 2.
 								ThreadPoolExecutor.DiscardOldestPolicy：丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）
 								ThreadPoolExecutor.CallerRunsPolicy：由调用线程处理该任务
 
-		不过不推荐直接使用ThreadPoolExecutor，而是通过Executors的几个静态方法来创建线程池，如果它提供的不满足使用，可以自己创建
+		不推荐Executors的几个静态方法来创建线程池
 
 		在ThreadPoolExecutor类中有几个非常重要的方法：
 			execute() 方法实际上是接口Executor中声明的方法，在ThreadPoolExecutor进行了具体的实现，
 							这个方法是ThreadPoolExecutor的核心方法，通过这个方法可以向线程池提交一个任务，交由线程池去执行。
-	  　　submit() 方法是在接口ExecutorService中声明的方法，在AbstractExecutorService就已经有了具体的实现，
+	  　   submit() 方法是在接口ExecutorService中声明的方法，在AbstractExecutorService就已经有了具体的实现，
 							在ThreadPoolExecutor中并没有对其进行重写，这个方法也是用来向线程池提交任务的，
 							但是它和execute()方法不同，它能够返回任务执行的结果，去看submit()方法的实现，
 							会发现它实际上还是调用的execute()方法，只不过它利用了Future来获取任务执行结果。
