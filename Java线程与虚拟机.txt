@@ -233,9 +233,9 @@ Q：Callable、Future和FutureTask
 A：创建线程的2种方式，一种是直接继承Thread，一种就是实现Runnable接口。这2种方式都有一个缺陷就是：在执行完任务之后无法获取执行结果。
       如果需要获取执行结果，就必须通过共享变量或者使用线程通信的方式来达到效果，这样使用起来就比较麻烦。
 	  而自从Java 1.5开始，就提供了Callable和Future接口，通过它们可以在任务执行完毕之后得到任务执行结果。
-	  
+
 	  Callable是一个泛型接口，里面call()方法返回的类型就是传递进来的泛型。一般情况下是配合ExecutorService来使用的
-	  
+
 	  Future是异步计算的结果，对于具体的Runnable或者Callable任务的执行结果进行取消、查询是否完成、获取结果，get()会阻塞直到任务返回结果。
 	  FutureTask实现了Runnable和Future接口，它既可以作为Runnable被线程执行，又可以作为Future得到Callable的返回值。
 
@@ -243,7 +243,20 @@ A：创建线程的2种方式，一种是直接继承Thread，一种就是实现
 		I.Callable定义的方法是call，而Runnable定义的方法是run。
 		II.Callable的call方法可以有返回值，而Runnable的run方法不能有返回值。
 		III.Callable的call方法可抛出异常，而Runnable的run方法不能抛出异常。  
-	  
+
+Q：CompletableFuture的使用，关键词 - 流水线
+A：默认情况下（即指没有传入Executor的情况下），异步执行会使用ForkJoinPool实现
+
+		join																		阻塞获取结果，会抛未检查异常
+       	supplyAsync(Supplier,Executor)  						使用自定义的线程池异步执行一个方法
+		thenApply(Function)					   						有运算结果后立刻同步执行一个方法
+		thenCompose(Function)			  				 			将两个异步操作进行流水线处理，要等待前一个任务结束
+		thenCombine(CompletionStage,BiFunction) 	将两个无关的异步操作结合处理，无前后关系
+	    thenAccept(Consumer)				   						在CompletableFuture完成后使用其返回值
+		handle(BiFunction)												处理前面流程的错误，入参有前面流程的结果和异常类																																	
+		
+		
+		
 Q：死锁的四个必要条件和如何处理死锁
 A：死锁是指两个或两个以上的进程在执行过程中，因争夺资源而造成的一种互相等待的现象，若无外力作用，它们都将无法推进下去。
             这是一个严重的问题，因为死锁会让你的程序挂起无法完成任务，死锁的发生必须满足以下四个条件：

@@ -1,10 +1,11 @@
 想学的东西：
-增加了解各种Future、深入HttpClient、携程配置中心原理、深入Redis
+增加了解各种Future、深入HttpClient、携程配置中心原理、深入Redis、docker
 
 2018年10月29日 —— 2018年11月4日（又是四个月过去了）
 1.似乎一点都没有进步，半年前要学的东西现在也不会
 2.Java异步，Future
 3.maven依赖里各标签的含义
+4.HttpClient深入
 
 2018年6月25日 —— 2018年7月1日（时间好快，又过了两个月啊）
 1.使用sourcetree管理项目，主要是springboot项目，不同功能放到不同分支上
