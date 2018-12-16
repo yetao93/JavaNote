@@ -50,11 +50,25 @@
 
 3. NotificationControllerV2得到配置发布的AppId+Cluster+Namespace后，会通知对应的客户端
 
+4. Config Service通知客户端的实现方式，**这里很难，我没有看懂**：
+	- 客户端会发起一个Http请求到Config Service的notifications/v2接口，也就是NotificationControllerV2，参见RemoteConfigLongPollService。
+	- NotificationControllerV2不会立即返回结果，而是通过Spring DeferredResult把请求挂起
+	- 如果在60秒内没有该客户端关心的配置发布，那么会返回Http状态码304给客户端
+	- 如果有该客户端关心的配置发布，NotificationControllerV2会调用DeferredResult的setResult方法，传入有配置变化的namespace信息，同时该请求会立即返回。客户端从返回的结果中获取到配置变化的namespace后，会立即请求Config Service获取该namespace的最新配置。
+
+
+
 ## 2.3 Client ##
 
 ## 2.4 Portal ##
 
-# 3.我的疑问 #
+# 3. 通用的知识 #
+
+- ScheduledExecutorService 定时任务线程池，常用于创建一个线程跑定时任务
+- guava里的工具类Strings、CollectionUtils、Splitter字符串分割（NotificationControllerV2-49）、Joiner字符串拼接（ReleaseMessageKeyGenerator-12）、Multimap用于代替复杂的集合类型比如Map<\String, List<\StudentScore>>、
+- BlockingQueue offer添加满了不会报错，add会报错
+
+# 4. 我的疑问 #
 
 Q：有Eureka注册中心，为什么还需要MetaServer来做服务发现？
 A：会在服务服务发现模块里面介绍，稍安勿躁
