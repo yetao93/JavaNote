@@ -68,7 +68,7 @@
 3. 客户端从Apollo配置中心服务端获取到应用的最新配置后，会保存在内存中
 4. 客户端会把从服务端获取到的配置在本地文件系统缓存一份。在遇到服务不可用，或网络不通的时候，依然能从本地恢复配置
 5. 应用程序可以从Apollo客户端获取最新的配置、订阅配置更新通知。可以通过API方式获取，Apollo也和Spring集成，直接使用@Value注解
-6. **集成了Spring，怎么设置/更新属性**
+6. 应用启动的时候，会扫描所有的bean解析其中的属性和要关心的注解（例如@Value)，将它们以placeHolder作为Key，bean+beanName+field等信息作为value，放入一个map中，待到有配置更新时（监听器）遍历这个map，对key相同的属性采用反射的方式进行更新。具体实现AutoUpdateConfigChangeListener、SpringValueProcessor
 
 ## 2.4 Portal ##
 
