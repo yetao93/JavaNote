@@ -1,5 +1,8 @@
 想学的东西：
-增加了解各种Future、深入HttpClient、携程Apollo配置中心原理、深入Redis、docker、Netty、Dubbo
+深入HttpClient、深入Redis、docker、Netty、Dubbo
+
+2019年1月24日 —— 2019年1月1日（元旦假期）
+1.Netty！这次要认真学
 
 2018年12月17日 —— 2018年12月23日 （又是一个月了）
 1.初步完成了Apollo架构学习，很多细节没有深究
