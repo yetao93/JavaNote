@@ -19,3 +19,4 @@
 docker
 创建redis容器：docker run --name ytt-redis -p 6379:6379 -v E:\redis:/data -d redis redis-server --appendonly yes
 连接redis：		 docker exec -it xxx redis-cli
+
