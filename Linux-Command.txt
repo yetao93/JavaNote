@@ -16,3 +16,6 @@
 
 修改文件权限     chmod -R 777 file  (r=4,w=2,x=1) (文件拥有者、群组、其他)
 
+docker
+创建redis容器：docker run --name ytt-redis -p 6379:6379 -v E:\redis:/data -d redis redis-server --appendonly yes
+连接redis：		 docker exec -it xxx redis-cli
