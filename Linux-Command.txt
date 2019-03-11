@@ -18,6 +18,8 @@
 
 查找文件中单词出现次数  more 文件名 | grep -o 单词名 | wc -l
 
+查看内存情况	free -h -s 5
+
 docker
 创建redis容器：docker run --name ytt-redis -p 6379:6379 -v E:\redis:/data -d redis redis-server --appendonly yes
 连接redis：		 docker exec -it xxx redis-cli
