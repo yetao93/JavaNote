@@ -559,9 +559,9 @@ A：// TODO
 Q：计算机网络三次握手四次分手以及wait_time三种差别
 A：SYN(synchronous同步)、ACK(acknowledgement 确认)、FIN(finish结束)
      TCP/IP协议中，TCP协议提供可靠的连接服务，采用三次握手建立一个连接。
-		第一次：建立连接时，客户端A发送SYN包（SYN=j）到服务器B，并进入SYN_SEND状态，等待服务器B确认。
-		第二次：服务器B收到SYN包，必须确认客户A的SYN（ACK=j+1），同时自己也发送一个SYN包（SYN=k），即SYN+ACK包，此时服务器B进入SYN_RECV状态。
-		第三次：客户端A收到服务器B的SYN＋ACK包，向服务器B发送确认包ACK（ACK=k+1），此包发送完毕，客户端A和服务器B进入ESTABLISHED状态，完成三次握手。
+		第一次：建立连接时，客户端A发送SYN包（Seq=i）到服务器B，并进入SYN_SEND状态，等待服务器B确认。
+		第二次：服务器B收到SYN包，必须确认客户A的SYN（Ack=i+1），同时自己也发送一个SYN包（Seq=j），即SYN+ACK包，此时服务器B进入SYN_RECV状态。
+		第三次：客户端A收到服务器B的SYN＋ACK包，向服务器B发送确认包ACK（Seq= i+1, Ack=j+1），此包发送完毕，客户端A和服务器B进入ESTABLISHED状态，完成三次握手。
 
 	 连接的拆除需要发送四个包，因此称为四次挥手(four-way handshake)。客户端或服务器均可主动发起挥手动作
 		（1）客户端A发送一个FIN，用来关闭客户A到服务器B的数据传送。 
