@@ -20,6 +20,11 @@
 
 查看内存情况	free -h -s 5
 
+mysql
+	mysqlbinlog -u account_base -p -h rm-bp12ztip62mt13hu9.mysql.rds.aliyuncs.com -R mysql-bin.000463 -vv --base64-output=decode-rows > mysql-bin-000463.txt
+	mysqlbinlog -u account_base -p -h rm-bp12ztip62mt13hu9.mysql.rds.aliyuncs.com -R mysql-bin.000461 --start-datetime="2019-04-11 21:00:00" --stop-datetime="2019-04-11 21:30:00" -vv --base64-output=decode-rows > mysql-bin-000461.txt
+	mysqlbinlog  --base64-output=decode-rows -v e:\\mysql-bin > e:\\binlo_test.txt
+
 docker
 创建redis容器：docker run --name ytt-redis -p 6379:6379 -v E:\redis:/data -d redis redis-server --appendonly yes
 连接redis：		 docker exec -it xxx redis-cli
