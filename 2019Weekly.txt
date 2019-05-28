@@ -1,6 +1,11 @@
 想学的东西：
 深入HttpClient、深入Redis、docker、Netty、Dubbo
 
+2019年5月27日 —— 2019年6月2日（考公务员花了三个月）
+1.真的要开始学习了，目标换工作，20K
+2.java基础、并发源码、jvm、mysql、redis、rocketmq
+3.分布式事务、分布式锁、故障转移、主备模式、高可用、缓存、降级熔断、failover、健康检查、mysql表扩容、mysql事务实现原理、spring启动bean初始化
+
 2019年2月25日 —— 2019年3月3日
 1.rpc框架 SOFABolt，netty最佳实践
 2.LeetCode也可以看看

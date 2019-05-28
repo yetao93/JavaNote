@@ -1,0 +1,23 @@
+大概想法：mysql、redis、hbase
+
+Q: redis和memcache的区别？
+
+Q: redis缓存击穿的方案有哪些？
+
+Q: redis持久化方式有哪些？
+
+Q: redis服务不可用时，持久化方式有何影响？
+
+Q: mysql的事务隔离级别，有什么问题？丢失更新会发生在什么级别？
+
+Q: innoDB和MYISAM的区别？
+
+Q: mysql的索引有哪些？区别是什么？
+
+Q: mysql的锁有哪些？意向锁是什么？
+
+Q: redis负载均衡的实现？
+
+Q: redis分布式锁，如果上锁失败怎么办
+
+Q: mysql表的扩容
