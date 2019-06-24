@@ -134,13 +134,6 @@ A: 不管怎么重排序，单线程程序的执行结果不能被改变。
 
 	as-if-serial是针对单线程程序，happens-before是针对正确同步的多线程程序，在不改变结果的前提下，尽可能地提高程序执行的并行度。
 
-Q: 类的加载机制？类的初始化器有哪些？双亲委派方式？
-
-Q: 死锁是什么，怎么办？
-A: 1. 避免一个线程获取多个锁。
-	2. 避免一个线程在锁内同时占用多个资源。
-	3. 使用定时锁，lock.tryLock(timeout)来替代使用内部锁机制。
-
 Q: 重入锁 ReentrantLock
 A: 重进入是指任意线程在获取到锁之后能够再次获取该锁而不会被锁阻塞。增加了再次获取同步状态的处理逻辑：通过判断当前线程是否为获取锁的线程
 		来决定获取操作是否成功，如果是则将同步状态值增加。释放锁减少同步状态值，只有彻底释放时才返回true
@@ -149,7 +142,7 @@ Q: 读写锁 ReentrantReadWriteLock
 A: 维护了一对锁，一个读锁和一个写锁。通过分离读锁和写锁，使得并发性相比一般的排他锁有了很大的提升。
 	在没有读写锁时，要实现这样的功能，需要用等待通知机制，当写开始时，其他操作进入等待，写完成后通知其他线程。写操作之间使用synchronized进行同步
 	
-Q: ConcurrentHashMap的原理
+Q: ConcurrentHashMap的原理（1.7）
 A: HashMap在并发执行put操作时可能会引起死循环，因为多线程会导致HashMap的Entry链表形成环形数据结构，这样next节点永远不为空，产生死循环获取Entry.
 	CHMap使用了分段锁，其中每个segment都是一个锁，segment中是HashEntry键值对数组。避免了竞争同一把锁。
 	
@@ -157,10 +150,39 @@ A: HashMap在并发执行put操作时可能会引起死循环，因为多线程�
 	
 	CHMap的size操作是否加锁：要统计整个CHMap中元素的数量，就要统计所有segment中元素数量然后求和，为了高效，先尝试2次不锁segment方式统计各segment数量，
 			如果统计过程中count发生了变化，则再加锁。判断是否发生变化是使用modCount变量，在put、remove、clean方法里都会使modCount加1，比较统计前后modCount即可。
+
+Q: Condition的作用
+A: 多线程间协调通信的工具类，实现等待/通知机制，功能与wait/notify类似，但是更强大。
+	wait/notify只能在synchronized块内部使用
+	condition可以创建不同的wait集合
+	condition必须由lock创建，不能new产生
+	一个lock可以绑定多个condition
+	condition支持相应中断、定时功能
+
+Q: 栈与队列，单向双向、阻塞非阻塞、有界无界、线程安不安全
+A: 栈，   后进先出LIFO。
+    队列，先进先出FIFO。
+	Java虽然提供Stack类来实现栈结构，但是已不推荐使用，而是使用Deque双端队列。
 	
-Q: ConcurrentLinkedQueue线程安全队列
-A: 
+	双端队列Deque接口的实现有
+		非线程安全：
+			LinkedList，   允许null
+			ArrayDeque，不允许null
+		线程安全：
+			ConcurrentLinkedDeque，不允许null，不阻塞
+			LinkedBlockingDeque，   不允许null，阻塞
+
+	单向队列Queue
+		有界：
+			ArrayBlockingQueue，  必须指定长度，有界队列，阻塞，添加和删除使用同一个锁，生产者-消费者模式常用。
+			LinkedBlockingQueue，默认长度Integer.MAX_VALUE，有界队列，阻塞，添加和删除两把锁是分开的，性能较好。
+			SynchronousQueue ，   阻塞队列，内部容量为0，适合交换数据使用
+		无界：put 操作永远都不会阻塞，空间限制来源于系统资源的限制，底层都使用CAS无锁编程
+			ConcurrentLinkedQueue ， 线程安全非阻塞，通常具有较高吞吐量，但是具有读性能的不确定性，弱一致性。size()遍历队列，isEmpty()只检查头队列，性能差异大
+			PriorityBlockingQueue ，	具有优先级的阻塞队列，put不会阻塞
+			DelayQueue，						延时阻塞队列，适用场景：缓存、任务超市处理。
+			LinkedTransferQueue ，		基于链表实现的无界阻塞队列，简单的说也是进行线程间数据交换的利器。预占模式。
 		
-	
-	
+		
+		
 	
