@@ -26,6 +26,8 @@ mysql
 	mysqlbinlog  --base64-output=decode-rows -v e:\\mysql-bin > e:\\binlo_test.txt
 
 docker
+volume挂载跟系统设置的密码credentials有关
+
 创建redis容器：docker run --name ytt-redis -p 6379:6379 -v E:\redis:/data -d redis redis-server --appendonly yes
 连接redis：		 docker exec -it xxx redis-cli
 
