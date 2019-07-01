@@ -1,13 +1,5 @@
 大概想法：mysql、redis、hbase
 
-Q: redis和memcache的区别？
-
-Q: redis缓存击穿的方案有哪些？
-
-Q: redis持久化方式有哪些？
-
-Q: redis服务不可用时，持久化方式有何影响？
-
 Q: mysql的事务隔离级别，有什么问题？丢失更新会发生在什么级别？
 
 Q: innoDB和MYISAM的区别？
@@ -16,8 +8,16 @@ Q: mysql的索引有哪些？区别是什么？
 
 Q: mysql的锁有哪些？意向锁是什么？
 
+Q: mysql表的扩容
+
 Q: 数据库锁释放时抛异常了，没有释放掉怎么办？
 A: 加锁和解锁必须在一个数据库连接里
+
+Q: redis和memcache的区别？
+
+Q: redis持久化方式有哪些？
+
+Q: redis服务不可用时，持久化方式有何影响？
 
 Q: redis负载均衡的实现？
 
@@ -28,8 +28,6 @@ A: Redisson是一个在Redis的基础上实现的Java驻内存数据网格（In-
 	它不仅提供了一系列的分布式的Java常用对象，还实现了可重入锁（Reentrant Lock）、公平锁（Fair Lock、联锁（MultiLock）、 红锁（RedLock）、 
 	读写锁（ReadWriteLock）等，还提供了许多分布式服务。Redisson提供了使用Redis的最简单和最便捷的方法。
 	Redisson的宗旨是促进使用者对Redis的关注分离（Separation of Concern），从而让使用者能够将精力更集中地放在处理业务逻辑上。
-
-Q: mysql表的扩容
 
 Q: 缓存穿透
 A: 查询一个一定不存在的数据，由于缓存是不命中时需要从数据库查询，查不到数据则不写入缓存，这将导致每次查询不存在的数据都会访问数据库。
