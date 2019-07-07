@@ -1,4 +1,4 @@
-大概想法：RocketMQ
+大概想法：RocketMQ、Kalfka
 
 Q: mq如何保证消息的可靠性？
 
