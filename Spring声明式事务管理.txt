@@ -52,5 +52,11 @@ Spring事务回滚规则：
 	
 		幻读和不可重复读都是读取了另一条已经提交的事务（这点就脏读不同），所不同的是不可重复读查询的都是同一个数据项，
 		而幻读针对的是一批数据整体（比如数据的个数）。
-		
-	
+
+查看当前会话隔离级别   SELECT @@tx_isolation;
+设置当前会话隔离级别	 set session transaction isolation level repeatable read;
+查看系统当前隔离级别	 select @@global.tx_isolation;
+设置系统当前隔离级别	 set global transaction isolation level repeatable read;
+
+重点介绍一下mysql的MVCC
+// TODO
