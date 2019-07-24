@@ -34,8 +34,10 @@ volume挂载跟系统设置的密码credentials有关
 
 创建mysql容器：docker run -p 3306:3306 --name ytt-mysql -v /e/mysql/data:/var/lib/mysql -v /e/mysql/logs:/logs -v /e/mysql/conf:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=123 -d mysql:5.7.25
 							在conf下创建配置文件，my.cnf，配置时区[mysqld]default-time-zone = '+8:00'，文件编码为ANSI
+连接mysql：       docker exec -it xxx /bin/bash
 
 centos
+连接centos：docker exec -it xxx  /bin/bash
 安装wget：yum install wget
 安装vim：  yum -y install vim*
 修改颜色： vim /etc/DIR_COLORS，将DIR 01;34（01：粗体，34：蓝色） ->  DIR 01;33（01：粗体，33：黄色）
