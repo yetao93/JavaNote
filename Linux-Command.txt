@@ -9,7 +9,7 @@
 下载文件		sz
 清空文件内容    使用gg调整光标到首行，然后使用dG命令即可
 查看文件		less -N 显示行号，/xxx 查找内容，n 查一下个，N 查上一个
-
+查看文件大小	du -sh
 
 提升权限		sudo su -
 
@@ -35,6 +35,8 @@ volume挂载跟系统设置的密码credentials有关
 创建mysql容器：docker run -p 3306:3306 --name ytt-mysql -v /e/mysql/data:/var/lib/mysql -v /e/mysql/logs:/logs -v /e/mysql/conf:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=123 -d mysql:5.7.25
 							在conf下创建配置文件，my.cnf，配置时区[mysqld]default-time-zone = '+8:00'，文件编码为ANSI
 连接mysql：       docker exec -it xxx /bin/bash
+
+创建zk：		docker run --privileged=true -d --name ytt-zookeeper --publish 2181:2181  -d zookeeper:latest
 
 centos
 连接centos：docker exec -it xxx  /bin/bash
