@@ -21,6 +21,9 @@
 
 查看内存情况	free -h -s 5
 
+解压zip 			unzip -o -d /home/sunny myfile.zip
+						# 把 myfile.zip 文件解压到 /home/sunny/   # -o ：不提示的情况下覆盖文件    # -d：将文件解压缩到指定目录下
+
 mysql
 	mysqlbinlog -u account_base -p -h rm-bp12ztip62mt13hu9.mysql.rds.aliyuncs.com -R mysql-bin.000463 -vv --base64-output=decode-rows > mysql-bin-000463.txt
 	mysqlbinlog -u account_base -p -h rm-bp12ztip62mt13hu9.mysql.rds.aliyuncs.com -R mysql-bin.000461 --start-datetime="2019-04-11 21:00:00" --stop-datetime="2019-04-11 21:30:00" -vv --base64-output=decode-rows > mysql-bin-000461.txt
@@ -47,3 +50,10 @@ zookeeper
 启动zk-Server	bin/zkServer.sh start
 启动zk-ClI	    bin/zkCli.sh
 关闭zk-Server	bin/zkServer.sh stop
+
+rocketmq
+启动name server		nohup sh bin/mqnamesrv &
+启动broker				nohup sh bin/mqbroker -n localhost:9876 autoCreateTopicEnable=true &
+关闭							sh bin/mqshutdown broker
+关闭							sh bin/mqshutdown namesrv
+
