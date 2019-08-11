@@ -1,4 +1,4 @@
-大概想法：RocketMQ（量好大啊，内容精深）、dubbo、zookeeper
+大概想法：RocketMQ（量好大啊，内容精深，下次再系统地学习）、dubbo、zookeeper
 
 Q: 消息队列的功能，为什么使用消息队列？
 A: 应用解耦。如果各个子系统间的耦合性太高，整体系统的可用性就会大幅降低，多个低错误率的子系统强耦合在一起，会得到高错误率的整体系统。
@@ -119,6 +119,7 @@ A: 是 MQ 提供的一种严格按照顺序进行发布和消费的消息类型�
 				消息到达消费者后，必须按照顺序处理。	
 
 Q: 如何自己实现mq？
+A: TODO
 
 Q: 说一下的 dubbo 的工作原理？
 A: dubbo 分成哪些层，然后平时怎么发起 rpc 请求的，注册、发现、调用 TODO
@@ -217,7 +218,7 @@ A: 分布式协调
 	感觉zookeeper的作用就两个，创建节点、注册监听器。
 
 Q: zookeeper相关的知识点？
-A: 
+A: https://www.w3cschool.cn/zookeeper/zookeeper_overview.html
 
 
 
