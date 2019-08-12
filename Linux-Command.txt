@@ -21,6 +21,9 @@
 
 查看内存情况	free -h -s 5
 
+解压zip 			unzip -o -d /home/sunny myfile.zip
+						# 把 myfile.zip 文件解压到 /home/sunny/   # -o ：不提示的情况下覆盖文件    # -d：将文件解压缩到指定目录下
+
 mysql
 	mysqlbinlog -u account_base -p -h rm-bp12ztip62mt13hu9.mysql.rds.aliyuncs.com -R mysql-bin.000463 -vv --base64-output=decode-rows > mysql-bin-000463.txt
 	mysqlbinlog -u account_base -p -h rm-bp12ztip62mt13hu9.mysql.rds.aliyuncs.com -R mysql-bin.000461 --start-datetime="2019-04-11 21:00:00" --stop-datetime="2019-04-11 21:30:00" -vv --base64-output=decode-rows > mysql-bin-000461.txt
@@ -36,11 +39,21 @@ volume挂载跟系统设置的密码credentials有关
 							在conf下创建配置文件，my.cnf，配置时区[mysqld]default-time-zone = '+8:00'，文件编码为ANSI
 连接mysql：       docker exec -it xxx /bin/bash
 
-创建zk：		docker run --privileged=true -d --name ytt-zookeeper --publish 2181:2181  -d zookeeper:latest
-
 centos
 连接centos：docker exec -it xxx  /bin/bash
 安装wget：yum install wget
 安装vim：  yum -y install vim*
 修改颜色： vim /etc/DIR_COLORS，将DIR 01;34（01：粗体，34：蓝色） ->  DIR 01;33（01：粗体，33：黄色）
+
+zookeeper
+修改配置文件	vim conf/zoo.cfg    内容 tickTime = 2000、dataDir = /自定义路径/data、clientPort = 2181、initLimit = 5、syncLimit = 2
+启动zk-Server	bin/zkServer.sh start
+启动zk-ClI	    bin/zkCli.sh
+关闭zk-Server	bin/zkServer.sh stop
+
+rocketmq
+启动name server		nohup sh bin/mqnamesrv &
+启动broker				nohup sh bin/mqbroker -n localhost:9876 autoCreateTopicEnable=true &
+关闭							sh bin/mqshutdown broker
+关闭							sh bin/mqshutdown namesrv
 
