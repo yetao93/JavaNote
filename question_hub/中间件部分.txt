@@ -7,13 +7,21 @@ A: 应用解耦。如果各个子系统间的耦合性太高，整体系统的�
 	保证最终一致性，
 	方便动态扩容，
 	
-Q: RocketMQ的优势
-A: •       支持事务型消息（消息发送和DB操作保持两方的最终一致性，rabbitmq和kafka不支持）
-	•       支持结合rocketmq的多个系统之间数据最终一致性（多方事务，二方事务是前提）
-	•       支持18个级别的延迟消息（rabbitmq和kafka不支持）
-	•       支持指定次数和时间间隔的失败消息重发（kafka不支持，rabbitmq需要手动确认）
-	•       支持consumer端tag过滤，减少不必要的网络传输（rabbitmq和kafka不支持）
-	•       支持重复消费（rabbitmq不支持，kafka支持）
+Q: RocketMQ的特点
+A: 支持事务型消息（消息发送和DB操作保持两方的最终一致性，rabbitmq和kafka不支持）
+	支持结合rocketmq的多个系统之间数据最终一致性（多方事务，二方事务是前提）
+	支持18个级别的延迟消息（rabbitmq和kafka不支持）
+	支持指定次数和时间间隔的失败消息重发（kafka不支持，rabbitmq需要手动确认）
+	支持consumer端tag过滤，减少不必要的网络传输（rabbitmq和kafka不支持）
+	支持重复消费（rabbitmq不支持，kafka支持）
+
+	缺点，
+		Broker 仅提供了 Master 到 Slave 的复制，没有 Failover 切换的能力。
+		没有告警与监控体系
+	
+Q: kafka的特点
+A: Kafka 更偏向大数据，日志处理。
+		缺少死信，消费失败自动重试，事务消息，定时消息，消息过滤，广播消息等特性，另外 Kafka 没有同步刷盘。
 
 Q: RocketMQ各部分角色和功能
 A: 由四部分组成
@@ -35,31 +43,49 @@ A: FLUSH_DISK_TIMEOUT，没有在规定的时间内完成刷盘（broker的刷�
 	SEND_OK，发送成功，具体消息是否已经储存到磁盘等要看刷盘策略、主从策略。
 
 Q: Message Queue
-A: 一个Topic会有多个Message Queue，TODO
+A: 消息物理管理单位。
+	一个Topic会有多个Message Queue，若Topic同时创建在不同的Broker，则不同的broker上都有若干Q，
+	消息将物理地存储落在不同Broker结点上，具有水平扩展的能力。
 
-Q: mq常用的消费模式有哪些？
-A: Broadcasting 广播模式，同一个group下的所有消费者都会消费一次。
-	Clustering      集群模式，同一个group下，只有一个消费者会消费一次。
+	无论生产者还是消费者，实际的生产和消费都是针对Q级别。例如Producer发送消息的时候，会预先选择（默认轮询）好该Topic下面的某一条Q地发送；
+	Consumer消费的时候也会负载均衡地分配若干个Q，只拉取对应Q的消息。
+
+	每一条message queue均对应一个文件，这个文件存储了实际消息的索引信息。并且即使文件被删除，也能通过实际纯粹的消息文件（commit log）恢复回来。
+
+
+Q: mq常用的消费模式有哪些，如何实现的呢？
+A: Clustering      集群模式，同一个group下，只有一个消费者会消费一次。
+			实际上每个消费者是平均分摊Message Queue去消费的，例如Topic有3个Queue，并且Consumer Group下有3个消费者，那么每个消费者一个Queue
+			消费进度的存储会持久化到broker。
+	
+	Broadcasting 广播模式，同一个group下的所有消费者都会消费一次。
+			实际上，是一个Consumer Group里每个消费者都获取到Topic下每个Message Queue去拉取消费。
+			消费进度的存储会持久化到消费者实例本地。
 
 Q: RocketMQ的消费者模型，特点是什么？会有什么问题？如何取舍？？
 A: Pull 由用户控制线程，主动从服务端获取消息，每次获取到的是一个MessageQueue中的消息。
 			优点，消费者可以根据自身能力拉取一定数量的消息进行消费。
 			缺点，拉取消息的频率设定需要重点考虑，拉取间隔久会增加消息的延迟，MQ中消息堆积过多。拉取间隔短会产生很多无效的网络交互（	可通过长轮询解决）
 			
-	Push 由MQ主动将消息推送给消费者。 
-			优点，能够实时推送消息。
+	Push 由MQ主动将消息推送给消费者。 使用长轮询实现。
+			优点，使用非常简单，内部已处理如线程池消费、流控、负载均衡、异常处理等等的各种场景。
 			缺点，如果存在慢消费问题，MQ不断推送的消息会对消费者造成过大的压力，缓冲区溢出。
 
 	RocketMQ通过Pull模式拉取消息，其中有长轮询机制，平衡推拉模型各自的缺点。如果一次拉取消息为空，并不直接返回，而是挂起请求，一段时间内有消息时再返回。
 
-Q: Consumer端的负载均衡
-A: TODO
+Q: RMQ的水平扩展及负载均衡
+A: https://zhuanlan.zhihu.com/p/25140744
+
+Q: 消息ACK机制及消费进度管理
+A: https://zhuanlan.zhihu.com/p/25265380
 
 Q: mq如何保证消息的可靠性？
-A: MQ的可靠性指的是当服务异常时，消息不能多也不能少。TODO
+A: 主从同步策略
+	刷盘策略
 
 Q: consumer消费失败后有什么补救措施？
-A: 重试队列、死信队列。TODO
+A: 如果消费失败了，会把消息发回broker的 RETRY_TOPIC 队列，即重试队列，在延迟一定时间后再次投递。
+	这样重复一定次数，默认16次，一直没有成功过，就投递到DLQ死信队列，需要人工处理。
 
 Q: mq零拷贝？
 A: RocketMQ主要通过内存映射技术MappedByteBuffer对文件进行读写操作。
@@ -80,7 +106,7 @@ A: 混合型存储结构，每个Broker实例下所有的队列共用一个日�
 			缺点是有较多的随机读操作，效率偏低。消费需要依赖ConsumeQueue，构建该逻辑队列需要一定的开销。
 			
 	ConsumeQueue 
-		与MessageQueue对应。集群模式下多个消费者就可以并行消费Consume Queue的消息。
+		与MessageQueue一一对应。集群模式下多个消费者就可以并行消费Consume Queue的消息。
 		作为消费消息的索引，保存了指定Topic下的队列消息在CommitLog中的起始物理偏移量offset，消息大小size和消息Tag的哈希值。
 		存储的数据较少，并且是顺序读取，在page cache机制的预读取作用下，读性能很高近似内存。
 								
@@ -110,9 +136,9 @@ A: 是 MQ 提供的一种严格按照顺序进行发布和消费的消息类型�
 		
 	在MQ的模型中，顺序需要由3个阶段去保障：
 		1. 消息被发送时保持顺序。
-				用户应该在同一个线程中采用同步的方式发送。将消息路由到特定的分区，通过MessageQueueSelector来实现分区的选择。一个Toic下有多个分区。
+				用户应该在同一个线程中采用同步的方式发送。将消息路由到特定的分区，通过MessageQueueSelector来实现分区的选择
 
-		2. 消息被存储时保持和发送的顺序一致
+		2. 消息被存储时保持和发送的顺序一致，在同一个Message Queue中储存。
 				存储时在空间上保持顺序。
 				
 		3. 消息被消费时保持和存储的顺序一致
@@ -220,6 +246,14 @@ A: 分布式协调
 Q: zookeeper相关的知识点？
 A: https://www.w3cschool.cn/zookeeper/zookeeper_overview.html
 
+
+zookeeper 是什么？
+zookeeper 都有哪些功能？
+zookeeper 有几种部署模式？
+zookeeper 怎么保证主从节点的状态同步？
+集群中为什么要有主节点？
+集群中有 3 台服务器，其中一个节点宕机，这个时候 zookeeper 还可以使用吗？
+说一下 zookeeper 的通知机制？
 
 
 
