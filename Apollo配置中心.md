@@ -4,16 +4,17 @@
 2. 配置中心通知Apollo客户端有配置更新
 3. Apollo客户端从配置中心拉取最新的配置、更新本地配置并通知到应用
 
-![](https://i.imgur.com/fj92Xg7.png)
+![Apollo架构图](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/apollo-basic-architecture.png)
+
 
 ## 1.1 架构模块 ##
 
 四个核心模块及其主要功能：
 
 1. **ConfigService**
-	- 提供配置获取接口 
-	- 提供配置推送接口
-	- 服务于Apollo客户端
+ - 提供配置获取接口
+ - 提供配置推送接口
+ - 服务于Apollo客户端
 2. **AdminService**
 	- 提供配置管理接口
 	- 提供配置修改发布接口
@@ -27,7 +28,7 @@
 	- 通过MetaServer获取AdminService的服务列表
 	- 使用客户端软负载SLB方式调用AdminService
 
-![](https://i.imgur.com/RBkaQnN.png)
+![Apollo架构图](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/apollo-overall-architecture.png)
 
 三个辅助服务发现模块：
 // TODO 以后再深入了解
@@ -58,7 +59,7 @@
 
 
 ## 2.3 Client ##
-![](https://i.imgur.com/ZbzRIXk.png)
+![](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/apollo-basic-architecture.png)
 
 1. 客户端和服务端保持了一个长连接，从而能第一时间获得配置更新的推送。（通过Http Long Polling实现）
 2. 客户端还会定时从Apollo配置中心服务端拉取应用的最新配置。
