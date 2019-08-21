@@ -93,17 +93,25 @@ public static void testGC(){
 
 ![java_gc_mark_sweep](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/java_gc_mark_sweep.png "java_gc_mark_sweep")
 
-标记清除算法（Mark-Sweep）是最基础的一种垃圾回收算法，它分为2部分，先把内存区域中的这些对象进行标记，哪些属于可回收标记出来，然后把这些垃圾拎出来清理掉。就像上图一样，清理掉的垃圾就变成未使用的内存区域，等待被再次使用。
+标记清除算法（Mark-Sweep）是最基础的一种垃圾回收算法，它分为两个阶段：标记阶段、清除阶段。
+
+标记阶段会通过可达性分析将不可达的对象标记出来。清除阶段会将标记阶段标记的垃圾对象清除。
 
 这逻辑再清晰不过了，并且也很好操作，但它存在一个很大的问题，那就是内存碎片。
+
+### 标记压缩算法
+
+标记压缩算法可以解决标记清除算法的内存碎片问题。在清除垃圾对象后增加了一步，内存碎片整理。
+
+把存活的对象移到堆空间的前面部分以保持已使用的堆空间的连续性。
 
 ### 复制算法
 
 ![java_gc_copying](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/java_gc_copying.png "java_gc_copying")
 
-复制算法（Copying）是在标记清除算法上演化而来，解决标记清除算法的内存碎片问题。它将可用内存按容量划分为大小相等的两块，每次只使用其中的一块。当这一块的内存用完了，就将还存活着的对象复制到另外一块上面，然后再把已使用过的内存空间一次清理掉。保证了内存的连续可用，内存分配时也就不用考虑内存碎片等复杂情况，逻辑清晰，运行高效。
+复制算法（Copying）是在标记清除算法上演化而来，解决标记清除算法的内存碎片问题。它将可用内存按容量划分为大小相等的两块，每次只使用其中的一块。当这一块的内存用完了，就将还存活着的对象复制到另外一块上面，然后再把已使用过的内存空间一次清理掉。保证了内存的连续可用，内存分配时也就不用考虑内存碎片等复杂情况，逻辑清晰，该算法在存货对象少，垃圾对象多的情况下，非常高效。
 
-PS，复制过一次之后，下一次使用的是哪一块空间呢？
+复制过一次之后，使用的是包含存活对象的空间。满了之后向空闲的原空间复制。
 
 问题是浪费了一半的空间。
 
@@ -125,7 +133,7 @@ PS，复制过一次之后，下一次使用的是哪一块空间呢？
 
 而老年代中因为对象存活率高、没有额外空间对它进行分配担保，就必须使用标记清除或者标记整理算法来进行回收。
 
-## 内存模型与回收策略
+## JVM内存模型和分代GC
 
 ![java_gc_heap_generation](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/java_gc_heap_generation.png "java_gc_heap_generation")
 
@@ -159,3 +167,76 @@ Survivor 区相当于是 Eden 区和 Old 区的一个缓冲，确保进入 Old �
 
 动态对象年龄
 虚拟机并不重视要求对象年龄必须到15岁，才会放入老年区，如果 Survivor 空间中相同年龄所有对象大小的总合大于 Survivor 空间的一半，年龄大于等于该年龄的对象就可以直接进去老年区，无需等你“成年”。
+
+### Minor GC
+
+在进行Minor GC之前，JVM还有一步操作，他会检查新生代所有对象使用的总内存是否小于老年代最大剩余连续内存，如果上述条件成立，那么这次Minor GC一定是安全的，因为即使所有新生代对象都进入老年代，老年代也不会内存溢出。
+
+如果上述条件不成立，JVM会查看参数 HandlePromotionFailure 是否开启（JDK1.6以后默认开启），如果没开启，说明Minor GC后可能会存在老年代内存溢出的风险，会进行一次Full GC，如果开启，JVM还会检查历次晋升老年代对象的平均大小是否小于老年代最大连续内存空间，如果成立，会尝试直接进行Minor GC，如果不成立，老年代执行Full GC。
+
+Minor GC的问题在于，新生代的对象可能被老年代引用，而这种情况可达性分析是分析不到的，但这种情况的新生代对象是不应该被回收的。
+
+HotSpot虚拟机提供了一个解决方案：卡表。这种方法会将老年代内存平均分为很多的卡片，每个卡片都包含一部分对象，然后维护一个卡表，卡表是一个数组，每个元素指向一个卡片，并标识出这个卡片中有没有指向新生代的对象，如果有标识为1。这样一来，Minor GC只需要扫描卡表中标识为1的卡片即可，大大提升了效率。
+
+![java_gc_minor_old_link_young](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/java_gc_minor_old_link_young.png "java_gc_minor_old_link_young")
+
+### Major GC / Full GC
+
+
+
+## GC类型
+
+根据GC算法的不同其执行过程也会有所区别。连线的部分标识可以配合使用。
+
+![java_gc_categories](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/java_gc_categories.png "java_gc_categories")
+
+对应的JVM参数如下，PS，不确定是否正确，自己写程序验证GC类型，Java8：
+
+| 新生代(别名)  |  老年代 | JVM 参数  | First | Second |
+| :------------: | :------------: | :------------: | :------------: | :------------: |
+| Serial (DefNew)  | Serial Old(PSOldGen)  | -XX:+UseSerialGC  | Copy | MarkSweepCompact |
+| Parallel Scavenge (PSYoungGen)  |  Serial Old(PSOldGen) |  -XX:+UseParallelGC | PS Scavenge | PS MarkSweep |
+| Parallel Scavenge (PSYoungGen) | Parallel Old (ParOldGen)  | -XX:+UseParallelOldGC  | PS Scavenge | PS MarkSweep |
+| ParNew (ParNew)  | Serial Old(PSOldGen)  | -XX:+UseParNewGC  | ParNew | MarkSweepCompact |
+| ParNew (ParNew)  | CMS+Serial Old(PSOldGen)  |-XX:+UseConcMarkSweepGC   | ParNew | ConcurrentMarkSweep |
+| G1   | G1  |  -XX:+UseG1GC | G1 Young Generation | G1 Old Generation |
+
+**PS Scavenge 即 Copy**
+**PS MarkSweep 即 MarkSweepCompact**
+
+下面介绍每种GC的特性：
+
+### Serial GC(-XX:+UseSerialGC)
+
+使用单一线程执行GC，在新生代使用复制算法，在老年代使用标记压缩算法（mark-sweep-compact）
+
+Serial GC适用于CPU核数较少且使用的内存空间较小的场景。
+
+### Parallel GC(-XX:+UseParallelGC)
+
+GC算法与 Serial GC 相同，但使用多个线程并发执行，因此 parallel GC 具有更快的速度。又被称为"高吞吐GC(throughput GC)"
+
+适用于多核CPU且使用了较大内存空间的场景。
+
+### Parallel Old GC(-XX:+UseParallelOldGC)
+
+与Parallel GC相比唯一的区别在于Parallel的GC算法是为老年代设计的。它的执行过程分为三步：标记(mark)--总结(summary)--压缩(compaction)。其中summary步骤会分别为存活的对象在已执行过GC的空间上标出位置，因此与mark-sweep-compact算法中的sweep步骤有所区别，并需要一些复杂步骤才能完成。
+
+PS，不知道这个怎么开启，怎么用
+
+### CMS GC(-XX:+UseConcMarkSweepGC)
+
+![java_gc_cms](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/java_gc_cms.png "java_gc_cms")
+
+并发标记清理，开始时的初始标记(initial mark)比较简单，只有靠近类加载器的存活对象会被标记，因此停顿时间(stop-the-world)比较短暂。在并发标记(concurrent mark)阶段，由刚被确认和标记过的存活对象所关联的对象将被会跟踪和检测存活状态。此步骤的不同之处在于有多个线程并行处理此过程。在重标记(remark)阶段，由并发标记所关联的新增或中止的对象瘵被会检测。在最后的并发清理(concurrent sweep)阶段，垃圾回收过程被真正执行。在垃圾回收执行过程中，其他线程依然在执行。得益于CMS GC的执行方式，在GC期间系统中断时间非常短暂。CMS GC也被称为低延迟GC，适用于所有应用对响应时间要求比较严格的场景。
+
+CMS GC虽然具有中断时间短的优势，其缺点也比较明显：
+
+- 与其他GC相比，CMS GC要求更多的内存空间和CPU资源
+- CMS GC默认不提供内存压缩，为了避免过多的内存碎片而需要执行额外的压缩任务时，CMS GC会比任何其他GC带来更多的stop-the-world时间
+
+### G1 GC
+
+先忘记上面介绍的有关新生代和老年代的知识。如上图所示，每个对象在创建时会分析到一个格子中，后续的GC也是在格子中完成的。每当一个区域分配满对象后，新创建的对象就会分配到另外一个区域，并开始执行GC。在这种GC中不会出现其他GC中的对象在新生代和老生代三区域中移动的现象。G1是为了取代在长期使用中暴露出大量问题且饱受抱怨的CMS GC。
+
+G1最大的改进在于其性能表现，它比以上任何一种GC都更快速。
