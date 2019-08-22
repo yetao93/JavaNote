@@ -182,7 +182,7 @@ HotSpot虚拟机提供了一个解决方案：卡表。这种方法会将老年�
 
 ### Major GC / Full GC
 
-
+TODO
 
 ## GC类型
 
@@ -202,6 +202,7 @@ HotSpot虚拟机提供了一个解决方案：卡表。这种方法会将老年�
 | G1   | G1  |  -XX:+UseG1GC | G1 Young Generation | G1 Old Generation |
 
 **PS Scavenge 即 Copy**
+
 **PS MarkSweep 即 MarkSweepCompact**
 
 下面介绍每种GC的特性：
@@ -235,8 +236,108 @@ CMS GC虽然具有中断时间短的优势，其缺点也比较明显：
 - 与其他GC相比，CMS GC要求更多的内存空间和CPU资源
 - CMS GC默认不提供内存压缩，为了避免过多的内存碎片而需要执行额外的压缩任务时，CMS GC会比任何其他GC带来更多的stop-the-world时间
 
-### G1 GC
+### G1 GC（-XX:+UseG1GC）
 
-先忘记上面介绍的有关新生代和老年代的知识。如上图所示，每个对象在创建时会分析到一个格子中，后续的GC也是在格子中完成的。每当一个区域分配满对象后，新创建的对象就会分配到另外一个区域，并开始执行GC。在这种GC中不会出现其他GC中的对象在新生代和老生代三区域中移动的现象。G1是为了取代在长期使用中暴露出大量问题且饱受抱怨的CMS GC。
+如上图所示，每个对象在创建时会分析到一个格子中，后续的GC也是在格子中完成的。每当一个区域分配满对象后，新创建的对象就会分配到另外一个区域，并开始执行GC。在这种GC中不会出现其他GC中的对象在新生代和老生代三区域中移动的现象。G1是为了取代在长期使用中暴露出大量问题且饱受抱怨的CMS GC。
 
 G1最大的改进在于其性能表现，它比以上任何一种GC都更快速。
+
+## GC 监控
+
+在运行时跟踪JVM运行GC的过程。例如，通过GC监控，我们能找出：
+
+1. 何时新生代的对象会被移动到老年代，有多少对象被移到了老年代。
+2. 何时stop-the-world发生以及持续时间。
+
+通过GC监控，能发现JVM是否在有效的运行GC以及是否需要额外的GC调优。基于这些信息，我们可以通过优化应用或者改变GC运行方式(GC调优)，从而提高应用性能。
+
+### 如何进行 GC 监控
+
+GC监控的方式很多，区别在于GC操作信息的展示会有所不同。GC是由JVM触发，因为GC监控工具展示的信息都是由JVM提供，所以不管使用哪种方式做GC监控，最终获取的信息都是一致的。
+
+#### jstat
+
+经典的CUI 工具可以使用一个单独的CUI应用jstat，也可以在运行JVM时通过提供"-verbosegc"选项来实现。jstat是Hotspot JVM内置的监控工具。
+
+`jstat –gc vmid 1000`
+
+vmid(虚拟机id: Virtual Machine ID)，见名示意，表示VM的ID。 1000 表示每隔1秒钟输出一次GC数据。
+
+常用参数 -gcutil 以百分比的格式输出每隔分区的使用量，以及GC执行的总次数和累计耗时。
+
+#### -verbosegc
+
+运行Java应用时的一个JVM参数，需要在启动应用时指定好。
+
+可以输出每次GC前后新生代和老年代的容量变化及GC耗时。作用是观察单次GC对系统的影响。
+
+## GC 调优
+
+调优的目标分为两类：降低移动到老年代的对象数量、缩短Full GC的执行时间
+
+#### 降低移动到老年代的对象数量
+
+在Oracle JVM中除了JDK 7及最高版本中引入的G1 GC外，其他的GC都是基于分代回收的。也就是对象会在Eden区中创建，然后不断在Survivor中来回移动。之后如果该对象依然存活，就会被移到老年代中。有些对象，因为占用空间太大以致于在Eden区中创建后就直接移动到了老年代。老年代的GC较新生代会耗时更长，因此减少移动到老年代的对象数量可以降低full GC的频率。减少对象转移到老年代可能会被误解为把对象保留在新生代，然而这是不可能的，相反你可以**调整新生代的空间大小**。
+
+#### 缩短Full GC耗时
+
+Full GC的单次执行与Minor GC相比，耗时有较明显的增加。如果执行Full GC占用太长时间(例如超过1秒)，在对外服务的连接中就可能会出现超时。
+
+- 如果企图通过缩小老年代空间的方式来降低Full GC执行时间，可能会面临OutOfMemoryError或者带来更频繁的Full GC。
+- 如果通过增加老年代空间来减少Full GC执行次数，单次Full GC耗时将会增加。
+
+因此，需要**为老年代空间设置适当的大小**。
+
+当有OutOfMemeoryError发生时，需要通过堆dump来分析验证内存溢出的原因并进行修复。
+
+### 影响GC性能的选项
+
+设置很多选项未必能提高GC执行速度，相反还可能会更加耗时。GC调优的基本规则是对两台或更多的服务器设置不同的选项，并对比性能表现，然后把被证明能提升性能的选项添加到应用服务器上。
+
+GC调优需要关注的选项：
+
+| 分类  | 选项  | 说明  |
+| :------------: | :------------: | :------------ |
+|  堆空间 | -Xms | 启动JVM时的初始堆空间大小  |
+|   | -Xmx  | 堆空间最大值  |
+| 新生代空间  | -XX:NewRatio  | 新生代与老年代的比例  |
+|   | -XX:NewSize  | 新生代大小  |
+|   | -XX:SurvivorRatio  | Eden区与Survivor区的比例  |
+| 永久代 | -XX:PermSize | 永久代空间大小（只有发生由Perm空间不足导致的OutOfMemoryError时才需要设置） |
+|  | -XX:MaxPermSize | 永久代空最大值 |
+
+如果GC执行时间满足以下判断条件，那么GC调优并没那么必须。
+- Minor GC执行迅速(50毫秒以内)
+- Minor GC执行不频繁(间隔10秒左右一次)
+- Full GC执行迅速(1秒以内)
+- Full GC执行不频繁(间隔10分钟左右一次)
+
+**推荐的JVM选项**
+
+| 选项类型  | 选项  |
+| :------------: | :------------ |
+| 堆大小  | 指定相同的-Xms和-Xmx  |
+| 新生代大小  |  -XX:NewRatio 取值在2-4之间 |
+|   | -XX:NewSize=?, -XX:MaxNewSize=?。替代NewRatio也是不错的选择  |
+| 元空间大小 | -XX:MetaspaceSize=256m  -XX:MaxMetaspaceSize=512m　把元空间大小设置为一个运行时不会出错的大小，因为它并不影响系统的性能  |
+| GC 日志 | -Xloggc:/usr/local/logs/gc.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps。输出GC日志并不明显影响应用性能，因此推荐保留详细的GC日志信息。  |
+| GC 算法 | -XX:+UseConcMarkSweepGC 根据应用特点不同，其他配置也许更优。 |
+| OOM发生时输出堆dump | -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/usr/local/logs |
+| OOM发生后的执行动作 | -XX:OnOutOfMemoryError=$CATALINA_HOME/bin/stop.sh 或者 -XX:OnOutOfMemoryError=$CATALINA_HOME/bin/restart.sh。OOM之后除了保留堆dump外，根据管理策略选择合适的运行脚本。 |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
