@@ -150,18 +150,50 @@ RMQ有同步刷盘和异步刷盘两种持久化方式来写入消息。唯一�
 
 ![rmq-message-queue-model](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/rmq-message-queue-model.png "rmq-message-queue-model")
 
-- 一个Topic由多个Partition组成，每个Partition是一个队列，即一个Partition内部的消息是先进先出的（顺序的）
-- Producer会写多个Partition，Consumer也会去读多个Partition
-- Producer不断的向Partition末尾追加消息，Consumer从队列的头开始一直向后读取消息。
+- 一个Topic由多个MessageQueue组成，每个MessageQueue是一个队列，即一个MessageQueue内部的消息是先进先出的（顺序的）
+- Producer会写多个MessageQueue，Consumer也会去读多个MessageQueue
+- Producer不断的向MessageQueue末尾追加消息，Consumer从队列的头开始一直向后读取消息。
 
 ### commit log
 
-虽然每个topic下面有很多message queue，但是message queue本身并不存储消息。真正的消息存储会写在CommitLog的文件，message queue只是存储CommitLog中对应的位置信息，方便通过message queue找到对应存储在CommitLog的消息。
+每个Broker都对应有一个MessageStore，专门用来存储发送到它的消息，不过MessageStore本身不是文件，只是存储的一个抽象，MessageStore 中保存着一个 CommitLog，CommitLog 维护了一个 MappedFileQueue，而MappedFileQueue 中又维护了多个 MappedFile，每个MappedFile都会映射到文件系统中一个文件，这些文件才是真正的存储消息的地方，MappedFile的文件名为它记录的第一条消息的全局物理偏移量。
 
-不同的topic，message queue都是写到相同的CommitLog 文件，也就是说CommitLog完全的顺序写。
+![rmq-message-queue-model](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/rmq-broker-store-model.jpg "rmq-message-queue-model")
 
-PS，这是重点，需要更详细
+消息存储是由ConsumeQueue和CommitLog配合完成的。一个Topic里面有多个MessageQueue，每个MessageQueue对应一个ConsumeQueue.
 
+ConsumeQueue里记录着消息物理存储地址。ommitLog就存储文件具体的字节信息。
+
+#### ConsumeQueue
+
+ConsumeQueue是不负责存储消息的，只是负责记录它所属Topic的消息在CommitLog中的偏移量，这样当消费者从Broker拉取消息的时候，就可以快速根据偏移量定位到消息。
+
+ConsumeQueue本身同样是利用MappedFileQueue进行记录偏移量信息的。
+
+1. ReputMessageService不断从CommitLog中查询是否有新存储的消息；
+2. 如果有新消息，便通过Dispatcher通知ConsumeQueue；
+3. ConsumeQueue收到通知后会将消息偏移量存储到自身的MappedFile中。
+
+
+
+### 零拷贝
+
+linux有两个上下文(内核态、用户态), 传统的将一个file读取并发送出去会经历4个过程。
+　read时：
+　　1. 将文件从磁盘copy到kernel(内核)态
+　　2. cpu将kernrl态的数据copy到user(用户)态
+　write时：
+　　3. user态的内容会copy到kernel态的socket的buffer中
+　　4. 将kernel中buffer的数据copy到网卡中传送
+我们可以发现2、3完全是多余的步骤，而且上下文之间的切换是很耗性能的。
+
+![linux-file-transport](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/linux-file-transport.png "linux-file-transport")
+
+ZeroCopy：内核直接把磁盘的数据传输到socket，而不是通过应用程序去传输。减少了不必要的内核缓冲区和用户缓冲区间的拷贝，从而提升了性能。
+
+零拷贝技术有mmap及sendfile；sendfile大文件传输快，mmap小文件传输快。MMQ发送的消息通常都很小，rocketmq就是以mmap+write方式实现的。像kafka、netty都采用了零拷贝技术。
+
+![linux-file-zero-copy](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/linux-file-zero-copy.png "linux-file-zero-copy")
 
 
 ## 来到消费者
@@ -203,6 +235,9 @@ https://help.aliyun.com/document_detail/87277.html?spm=a2c4g.11186623.2.30.6fd52
 注意，这些策略只有在全新的消费组才会使用到。
 
 
+## 如何自研一个消息队列
+
+AMQP（Advanced Message Queuing Protocal，高级消息队列协议）
 
 
 
