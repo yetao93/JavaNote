@@ -178,13 +178,13 @@ ConsumeQueue本身同样是利用MappedFileQueue进行记录偏移量信息的�
 
 ### 零拷贝
 
-linux有两个上下文(内核态、用户态), 传统的将一个file读取并发送出去会经历4个过程。
-　read时：
-　　1. 将文件从磁盘copy到kernel(内核)态
-　　2. cpu将kernrl态的数据copy到user(用户)态
-　write时：
-　　3. user态的内容会copy到kernel态的socket的buffer中
-　　4. 将kernel中buffer的数据copy到网卡中传送
+linux有两个上下文(内核态、用户态), 传统的将一个file读取并发送出去会经历4个过程。1和2是read，3和4是write
+
+1. 将文件从磁盘copy到kernel(内核)态
+2. cpu将kernrl态的数据copy到user(用户)态
+3. user态的内容会copy到kernel态的socket的buffer中
+4. 将kernel中buffer的数据copy到网卡中传送
+
 我们可以发现2、3完全是多余的步骤，而且上下文之间的切换是很耗性能的。
 
 ![linux-file-transport](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/linux-file-transport.png "linux-file-transport")
@@ -238,6 +238,7 @@ https://help.aliyun.com/document_detail/87277.html?spm=a2c4g.11186623.2.30.6fd52
 ## 如何自研一个消息队列
 
 AMQP（Advanced Message Queuing Protocal，高级消息队列协议）
+
 
 
 
