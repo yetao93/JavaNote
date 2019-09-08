@@ -1,5 +1,15 @@
 想学的东西：
-深入HttpClient、深入Redis、docker、Netty、Dubbo
+深入Redis、docker、Netty、Dubbo
+最基本的HashMap 和 ConcurrentHashMap
+线程池的源码实现
+阻塞队列BlockingQueue相关实现
+ReentrantLock 实现，以及其内部同步器Sync的实现原理
+Future的实现原理
+AtomicXXX是如何运转的
+
+
+2019年09月02日 —— 2019年09月08日
+1.前面那段时间看了rocketMQ
 
 2019年6月24日 —— 2019年6月30日
 1. aop的两种实现，原生jdk的实现、基于第三方包cglib的实现
