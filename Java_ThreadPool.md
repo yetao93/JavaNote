@@ -1,6 +1,4 @@
-# Java 线程池
-
-## 为什么使用线程池
+# 为什么使用线程池
 
 线程是稀缺资源，如果被无限制的创建，不仅会消耗系统资源，还会降低系统的稳定性，合理的使用线程池对线程进行统一分配、调优和监控，有以下好处：
 1. 降低资源消耗；
@@ -9,16 +7,16 @@
 
 Java1.5中引入的Executor框架把任务的提交和执行进行解耦，只需要定义好任务，然后提交给线程池，而不用关心该任务是如何执行、被哪个线程执行，以及什么时候执行。
 
-## 线程池工作流程
+# 线程池工作流程
 
 当一个任务提交至线程池之后
 1. 线程池首先判断核心线程池里的线程是否已经满了。如果不是，则创建一个新的工作线程来执行任务。否则进入2.
 2. 判断工作队列是否已经满了，倘若还没有满，将线程放入工作队列。否则进入3.
 3. 判断线程池里的线程是否都在执行任务。如果不是，则创建一个新的工作线程来执行。如果线程池满了，则交给饱和策略来处理任务。
 
-## 线程池原理
+# 线程池原理
 
-### 内部状态
+## 内部状态
 
     private final AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0));
 
@@ -32,9 +30,9 @@ Java1.5中引入的Executor框架把任务的提交和执行进行解耦，只�
 
 ![java_threadpool_status](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/java_threadpool_status.png "java_threadpool_status")
 
-### 源码分析
+## 源码分析
 
-#### execute()
+### execute()
 
 当向线程池中提交一个任务，线程池会如何处理该任务？
 
@@ -47,12 +45,13 @@ Java1.5中引入的Executor框架把任务的提交和执行进行解耦，只�
 
 ![java_threadpool_execute_process](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/java_threadpool_execute_process.png "java_threadpool_execute_process")
 
-##### 为什么需要再次检查线程池状态
+#### 为什么需要再次检查线程池状态
 
+主要目的是判断刚加入阻塞队列的task是否能被执行
 1. 线程池在No.1371检查状态之后，可能被关闭了。这时需要回滚任务加入队列操作，将任务移出。
 2. 因为可能存在有些线程在No.1366检查线程数之后死了，而如果所有线程都死了，任务虽然成功添加到队列中，但是不会有线程来执行。这时需要新开启一个线程。
 
-#### addWorker()
+### addWorker()
 
 主要负责创建新的线程并执行任务
 
@@ -79,7 +78,7 @@ Java1.5中引入的Executor框架把任务的提交和执行进行解耦，只�
 
 线程工厂在创建线程thread时，将Woker实例本身this作为参数传入，当执行No.957的start方法启动线程thread时，本质是执行了runWorker方法。
 
-#### runWorker() 线程池的核心
+### runWorker() 线程池的核心
 
 ![java_threadpool_runworker](https://raw.githubusercontent.com/yetao93/JavaNote/master/md_pic/java_threadpool_runworker.png "java_threadpool_runworker")
 
@@ -91,7 +90,7 @@ runWorker方法是线程池的核心：
 
 PS：这里面的加锁和AQS释放锁，还不懂
 
-##### getTask()
+#### getTask()
 
 	Runnable r = timed ? workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) : workQueue.take();
 
@@ -101,7 +100,7 @@ PS：这里面的加锁和AQS释放锁，还不懂
 
 
 
-### Runnable、Callable、Future
+## Runnable、Callable、Future
 
 通过ExecutorService.submit()方法提交的任务，可以获取任务执行完的返回值。
 
@@ -110,7 +109,7 @@ PS：这里面的加锁和AQS释放锁，还不懂
 2. Callable任务除了返回正常结果之外，如果发生异常，该异常也会被返回，即Future可以拿到异步执行任务各种结果；
 3. Future.get方法会导致主线程阻塞，直到Callable任务执行完成；
 
-#### FutureTask
+### FutureTask
 
 实现了Runnable、Future接口（可能是它们最简单的一个实现类），其中有个属性的类型为Callable，还有个outcome的Object类型作为返回值。
 
